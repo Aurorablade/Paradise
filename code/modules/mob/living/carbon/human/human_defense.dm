@@ -183,7 +183,7 @@ emp_act
 		newmeat.subjectjob = src.job
 		newmeat.reagents.add_reagent ("nutriment", (src.nutrition / 15) / 3)
 		src.reagents.trans_to (newmeat, round ((src.reagents.total_volume) / 3, 1))
-		src.loc.add_blood(src)
+		add_mob_blood(src)
 		--src.meatleft
 		to_chat(user, "\red You hack off a chunk of meat from [src.name]")
 		if(!src.meatleft)
@@ -213,9 +213,9 @@ emp_act
 
 	if(! I.discrete)
 		if(I.attack_verb.len)
-			visible_message("<span class='danger'>[src] has been [pick(I.attack_verb)] in the [hit_area] with [I.name] by [user]!</span>")
+			visible_message("\red <B>[src] has been [pick(I.attack_verb)] in the [hit_area] with [I.name] by [user]!</B>")
 		else
-			visible_message("<span class='danger'>[src] has been attacked in the [hit_area] with [I.name] by [user]!</span>")
+			visible_message("\red <B>[src] has been attacked in the [hit_area] with [I.name] by [user]!</B>")
 
 	var/armor = run_armor_check(affecting, "melee", "Your armor has protected your [hit_area].", "Your armor has softened hit to your [hit_area].", armour_penetration = I.armour_penetration)
 	var/weapon_sharp = is_sharp(I)
@@ -232,19 +232,18 @@ emp_act
 
 	var/bloody = 0
 	if(I.damtype == BRUTE && I.force && prob(25 + I.force * 2))
-		I.add_blood(src)	//Make the weapon bloody, not the person.
+		I.add_mob_blood(src)	//Make the weapon bloody, not the person.
 //		if(user.hand)	user.update_inv_l_hand()	//updates the attacker's overlay for the (now bloodied) weapon
 //		else			user.update_inv_r_hand()	//removed because weapons don't have on-mob blood overlays
 		if(prob(33))
 			bloody = 1
 			var/turf/location = loc
 			if(istype(location, /turf/simulated))
-				location.add_blood(src)
+				add_splatter_floor(location)
 			if(ishuman(user))
 				var/mob/living/carbon/human/H = user
 				if(get_dist(H, src) <= 1) //people with TK won't get smeared with blood
-					H.bloody_body(src)
-					H.bloody_hands(src)
+					H.add_mob_blood(src)
 
 		if(!stat)
 			switch(hit_area)
@@ -259,15 +258,7 @@ emp_act
 							ticker.mode.remove_revolutionary(mind)
 
 					if(bloody)//Apply blood
-						if(wear_mask)
-							wear_mask.add_blood(src)
-							update_inv_wear_mask(0)
-						if(head)
-							head.add_blood(src)
-							update_inv_head(0,0)
-						if(glasses && prob(33))
-							glasses.add_blood(src)
-							update_inv_glasses(0)
+						add_mob_blood(src)
 
 				if("upper body")//Easier to score a stun but lasts less time
 					if(stat == CONSCIOUS && I.force && prob(I.force + 10))
@@ -386,11 +377,9 @@ emp_act
 	if(gloves)
 		gloves.add_blood(source)
 		gloves:transfer_blood = amount
-		gloves:bloody_hands_mob = source
 	else
 		add_blood(source)
 		bloody_hands = amount
-		bloody_hands_mob = source
 	update_inv_gloves(1)		//updates on-mob overlays for bloody hands and/or bloody gloves
 
 /mob/living/carbon/human/proc/bloody_body(var/mob/living/source)

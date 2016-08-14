@@ -151,13 +151,13 @@
 
 		for(var/mob/O in viewers(messagesource, null))
 			if(attack_verb.len)
-				O.show_message("<span class='danger'>[M] has been [pick(attack_verb)] with [src][showname] </span>", 1)
+				O.show_message("\red <B>[M] has been [pick(attack_verb)] with [src][showname] </B>", 1)
 			else
-				O.show_message("<span class='danger'>[M] has been attacked with [src][showname] </span>", 1)
+				O.show_message("\red <B>[M] has been attacked with [src][showname] </B>", 1)
 
 		if(!showname && user)
 			if(user.client)
-				to_chat(user, "<span class='danger'>You attack [M] with [src]. </span>")
+				to_chat(user, "\red <B>You attack [M] with [src]. </B>")
 
 
 
@@ -175,7 +175,7 @@
 					if(prob(33)) // Added blood for whacking non-humans too
 						var/turf/simulated/location = M.loc
 						if(istype(location, /turf/simulated))
-							location.add_blood_floor(M)
+							M.add_splatter_floor(location)
 			if("fire")
 				M.take_organ_damage(0, power)
 				to_chat(M, "Aargh it burns!")

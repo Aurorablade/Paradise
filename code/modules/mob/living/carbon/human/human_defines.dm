@@ -73,6 +73,8 @@ var/global/default_martial_art = new/datum/martial_art
 	var/meatleft = 3 //For chef item
 	var/decaylevel = 0 // For rotting bodies
 	var/max_blood = BLOOD_VOLUME_NORMAL // For stuff in the vessel
+	var/bleed_rate = 0
+	var/bleedsuppress = 0 //for stopping bloodloss
 	var/slime_color = "blue" //For slime people this defines their color, it's blue by default to pay tribute to the old icons
 
 	var/check_mutations=0 // Check mutations on next life tick

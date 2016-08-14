@@ -14,7 +14,7 @@
 		H.restore_blood()
 		H.shock_stage = 0
 		spawn(1)
-			H.fixblood()
+			H.restore_blood()
 	spawn(0)
 		for(var/i = 0, i<10,i++)
 			user.heal_overall_damage(10, 10)

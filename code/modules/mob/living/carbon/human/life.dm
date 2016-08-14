@@ -1051,8 +1051,7 @@
 
 	var/temp = PULSE_NORM
 
-	var/blood_type = get_blood_name()
-	if(round(vessel.get_reagent_amount(blood_type)) <= BLOOD_VOLUME_BAD)	//how much blood do we have
+	if(blood_volume <= BLOOD_VOLUME_BAD)	//how much blood do we have
 		temp = PULSE_THREADY	//not enough :(
 
 	if(status_flags & FAKEDEATH)
@@ -1105,7 +1104,7 @@
 
 
 	for(var/mob/living/carbon/human/H in range(decaylevel, src))
-		if(prob(2))
+		if(prob(5))
 			if(istype(loc,/obj/item/bodybag))
 				return
 			var/obj/item/clothing/mask/M = H.wear_mask
@@ -1113,8 +1112,6 @@
 				return
 			if(H.species && H.species.flags & NO_BREATHE)
 				return //no puking if you can't smell!
-			if(H.mind.assigned_role == "Detective")
-				return //too cool for puke
 			to_chat(H, "<spawn class='warning'>You smell something foul...")
 			H.fakevomit()
 

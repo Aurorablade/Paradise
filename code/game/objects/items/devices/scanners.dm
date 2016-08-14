@@ -172,7 +172,7 @@ REAGENT SCANNER
 				user.show_message(text("\blue \t []: [][]\blue - []",	\
 				capitalize(org.name),					\
 				(org.brute_dam > 0)	?	"\red [org.brute_dam]"							:0,		\
-				(org.status & ORGAN_BLEEDING)?"<span class='danger'>\[Bleeding\]</span>":"\t", 		\
+				(org.status & ORGAN_BLEEDING)?"\red <b>\[Bleeding\]</b>":"\t", 		\
 				(org.burn_dam > 0)	?	"<font color='#FFA500'>[org.burn_dam]</font>"	:0),1)
 		else
 			user.show_message("\blue \t Limbs are OK.",1)
@@ -227,19 +227,17 @@ REAGENT SCANNER
 				user.show_message(text("\red Internal bleeding detected. Advanced scanner required for location."), 1)
 				break
 		if(H.vessel)
-			var/blood_type = H.get_blood_name()
-			var/blood_volume = round(H.vessel.get_reagent_amount(blood_type))
-			var/blood_percent =  blood_volume / BLOOD_VOLUME_NORMAL
+			var/blood_percent =  H.blood_volume / BLOOD_VOLUME_NORMAL
 			blood_percent *= 100
-			if(blood_volume <= 500)
-				user.show_message("\red <b>Warning: Blood Level LOW: [blood_percent]% [blood_volume]cl")
-			else if(blood_volume <= 336)
-				user.show_message("\red <b>Warning: Blood Level CRITICAL: [blood_percent]% [blood_volume]cl")
+			if(H.blood_volume <= 500)
+				user.show_message("\red <b>Warning: Blood Level LOW: [blood_percent]% [H.blood_volume]cl")
+			else if(H.blood_volume <= 336)
+				user.show_message("\red <b>Warning: Blood Level CRITICAL: [blood_percent]% [H.blood_volume]cl")
 			else
-				user.show_message("\blue Blood Level Normal: [blood_percent]% [blood_volume]cl")
+				user.show_message("\blue Blood Level Normal: [blood_percent]% [H.blood_volume]cl")
 			if(H.species.exotic_blood)
 				user.show_message("<span class='warning'>Subject possesses exotic blood.</span>")
-				user.show_message("<span class='warning'>Exotic blood type: [blood_type].</span>")
+				user.show_message("<span class='warning'>Exotic blood type: [blood_type].</span>")//to fix
 		if(H.heart_attack && H.stat != DEAD)
 			user.show_message("<span class='userdanger'>Subject suffering from heart attack: Apply defibrillator immediately.</span>")
 		user.show_message("\blue Subject's pulse: <font color='[H.pulse == PULSE_THREADY || H.pulse == PULSE_NONE ? "red" : "blue"]'>[H.get_pulse(GETPULSE_TOOL)] bpm.</font>")

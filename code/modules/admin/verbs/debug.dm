@@ -656,7 +656,7 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 			if(jobdatum)
 				dresscode = "[jobdatum.title]"
 				jobdatum.equip(M)
-				equip_special_id(M,jobdatum.get_access(),jobdatum.title, jobdatum.idtype)
+				equip_special_id(M,jobdatum.access,jobdatum.title, jobdatum.idtype)
 
 		if("standard space gear")
 			M.equip_to_slot_or_del(new /obj/item/clothing/shoes/black(M), slot_shoes)
@@ -836,7 +836,7 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 			equip_special_id(M,list(access_maint_tunnels), "Survivor", /obj/item/weapon/card/id)
 			for(var/obj/item/carried_item in M.contents)
 				if(!istype(carried_item, /obj/item/weapon/implant))
-					carried_item.add_blood(M)
+					carried_item.add_mob_blood(M)
 
 		if("greytide")
 			M.equip_to_slot_or_del(new /obj/item/clothing/under/color/grey(M), slot_w_uniform)
@@ -902,7 +902,7 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 			M.equip_to_slot_or_del(fire_axe, slot_r_hand)
 			for(var/obj/item/carried_item in M.contents)
 				if(!istype(carried_item, /obj/item/weapon/implant))
-					carried_item.add_blood(M)//Oh yes, there will be blood...
+					carried_item.add_mob_blood(M)//Oh yes, there will be blood...
 
 		if("dark lord")
 			M.equip_to_slot_or_del(new /obj/item/clothing/under/color/black(M), slot_w_uniform)
@@ -1387,9 +1387,20 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 	spawn(30)
 		for(var/obj/machinery/the_singularitygen/G in machines)
 			if(G.anchored)
-				var/obj/singularity/S = new /obj/singularity(get_turf(G))
-				S.energy = 800
-				break
+				var/obj/singularity/S = new /obj/singularity(get_turf(G), 50)
+//				qdel(G)
+				S.energy = 1750
+				S.current_size = 7
+				S.icon = 'icons/effects/224x224.dmi'
+				S.icon_state = "singularity_s7"
+				S.pixel_x = -96
+				S.pixel_y = -96
+				S.grav_pull = 0
+				//S.consume_range = 3
+				S.dissipate = 0
+				//S.dissipate_delay = 10
+				//S.dissipate_track = 0
+				//S.dissipate_strength = 10
 
 	for(var/obj/machinery/power/rad_collector/Rad in machines)
 		if(Rad.anchored)

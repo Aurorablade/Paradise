@@ -124,7 +124,7 @@ var/const/INGEST = 2
 			continue
 		if(current_reagent.id == "blood" && ishuman(target))
 			var/mob/living/carbon/human/H = target
-			H.inject_blood(my_atom, amount)
+			H.inject_blood(my_atom, amount)//to fix
 			continue
 		var/current_reagent_transfer = current_reagent.volume * part
 		if(preserve_data)

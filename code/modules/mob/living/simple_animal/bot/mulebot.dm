@@ -715,7 +715,7 @@
 
 	currentBloodColor = "#A10808"
 	if(istype(H))
-		var/datum/reagent/blood/bld = H.get_blood(H.vessel)
+		var/datum/reagent/blood/bld = H.get_blood(H.vessel)//need to fix
 		if(bld.data["blood_colour"])
 			currentBloodColor = bld.data["blood_colour"]
 			return

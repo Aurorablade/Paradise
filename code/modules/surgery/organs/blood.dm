@@ -160,7 +160,7 @@
 						if((D.spread_flags & SPECIAL) || (D.spread_flags & NON_CONTAGIOUS))
 							continue
 						C.ForceContractDisease(D)
-				if(!(blood_data["blood_type"] in get_safe_blood(C.dna.blood_type)))//xif ot
+				if(!(blood_data["blood_type"] in get_safe_blood(b_type)))
 					C.reagents.add_reagent("toxin", amount * 0.5)
 					return 1
 
@@ -197,10 +197,10 @@
 			blood_data["ckey"] = ckey
 		if(!suiciding)
 			blood_data["cloneable"] = 1
-		blood_data["blood_type"] = copytext(dna.blood_type,1,0)//to dix
+		blood_data["blood_type"] = b_type
 		blood_data["gender"] = gender
 		blood_data["real_name"] = real_name
-		blood_data["features"] = dna.features
+		blood_data["blood_color"] = species.blood_color
 		blood_data["factions"] = faction
 		return blood_data
 
@@ -213,11 +213,12 @@
 		return "blood"
 
 /mob/living/carbon/human/get_blood_id()
-	if(dna.species.exotic_blood)//tofix
-		return dna.species.exotic_blood
+	if(species.exotic_blood)
+		return species.exotic_blood
 	else if((species && species.flags & NO_BLOOD) || (disabilities & NOCLONE))
 		return
 	return "blood"
+
 
 // This is has more potential uses, and is probably faster than the old proc.
 /proc/get_safe_blood(bloodtype)
@@ -283,7 +284,7 @@
 /mob/living/carbon/alien/add_splatter_floor(turf/T, small_drip)
 	if(!T)
 		T = get_turf(src)
-	var/obj/effect/decal/cleanable/xenoblood/B = locate() in T.contents
+	var/obj/effect/decal/cleanable/blood/xeno/B = locate() in T.contents
 	if(!B)
 		B = new(T)
 	B.blood_DNA["UNKNOWN DNA"] = "X*"
@@ -291,6 +292,6 @@
 /mob/living/silicon/robot/add_splatter_floor(turf/T, small_drip)
 	if(!T)
 		T = get_turf(src)
-	var/obj/effect/decal/cleanable/oil/B = locate() in T.contents
+	var/obj/effect/decal/cleanable/blood/oil/B = locate() in T.contents
 	if(!B)//I DEFINED YOUR TYPE JACKASS
 		B = new(T)

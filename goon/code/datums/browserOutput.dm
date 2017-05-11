@@ -55,14 +55,15 @@ var/list/chatResources = list(
 	if(!owner)
 		return
 
-	for(var/attempts = 1 to 5)
+	for(var/attempts in 1 to 5)
 		for(var/asset in global.chatResources)
 			owner << browse_rsc(file(asset))
 
-		owner << browse(file("goon/browserassets/html/browserOutput.html"), "window=browseroutput")
-		sleep(20 SECONDS)
-		if(!owner || loaded)
-			break
+		for(var/subattempts in 1 to 3)
+			owner << browse(file2text("goon/browserassets/html/browserOutput.html"), "window=browseroutput")
+			sleep(10 SECONDS)
+			if(!owner || loaded)
+				return
 
 /datum/chatOutput/Topic(var/href, var/list/href_list)
 	if(usr.client != owner)
@@ -98,6 +99,8 @@ var/list/chatResources = list(
 
 	loaded = TRUE
 	winset(owner, "browseroutput", "is-disabled=false")
+	if(owner.holder)
+		loadAdmin()
 	for(var/message in messageQueue)
 		to_chat(owner, message)
 
@@ -118,6 +121,9 @@ var/list/chatResources = list(
 		data = json_encode(data)
 	C << output("[data]", "[window]:ehjaxCallback")
 
+/datum/chatOutput/proc/loadAdmin()
+	var/data = json_encode(list("loadAdminCode" = replacetext(replacetext(file2text("goon/browserassets/html/adminOutput.html"), "\n", ""), "\t", "")))
+	ehjax_send(data = url_encode(data))
 
 /datum/chatOutput/proc/sendClientData()
 	var/list/deets = list("clientData" = list())

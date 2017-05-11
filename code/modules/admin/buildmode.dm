@@ -95,6 +95,7 @@
 	cl.images -= I
 	cl = null
 	qdel(I)
+	return ..()
 
 /obj/effect/buildmode_line
 	var/image/I
@@ -140,6 +141,8 @@
 /datum/click_intercept/Destroy()
 	for(var/button in buttons)
 		qdel(button)
+	buttons.Cut()
+	return ..()
 
 
 /datum/click_intercept/proc/create_buttons()
@@ -191,7 +194,7 @@
 	Reset()
 	areaimage.loc = null
 	qdel(areaimage)
-	..()
+	return ..()
 
 /datum/click_intercept/buildmode/create_buttons()
 	buttons += new /obj/screen/buildmode/mode(src)
@@ -447,7 +450,7 @@
 				new/obj/machinery/door/airlock(get_turf(object))
 			else if(istype(object,/turf) && ctrl_click && left_click)
 				var/obj/structure/window/reinforced/WIN = new/obj/structure/window/reinforced(get_turf(object))
-				WIN.set_dir(build_dir)
+				WIN.setDir(build_dir)
 				log_admin("Build Mode: [key_name(user)] built a window at ([object.x],[object.y],[object.z])")
 
 		if(ADV_BUILDMODE)
@@ -458,7 +461,7 @@
 					T.ChangeTurf(objholder)
 				else
 					var/obj/A = new objholder (get_turf(object))
-					A.set_dir(build_dir)
+					A.setDir(build_dir)
 					log_admin("Build Mode: [key_name(user)] modified [A]'s ([A.x],[A.y],[A.z]) dir to [build_dir]")
 			else if(right_click)
 				if(isobj(object))
@@ -547,7 +550,7 @@
 									T.ChangeTurf(objholder)
 								else
 									var/obj/A = new objholder(T)
-									A.set_dir(build_dir)
+									A.setDir(build_dir)
 						deselect_region()
 					return
 

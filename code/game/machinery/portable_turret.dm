@@ -65,6 +65,7 @@
 	var/has_cover = 1		//Hides the cover
 
 /obj/machinery/porta_turret/centcom
+	name = "Centcom Turret"
 	enabled = 0
 	ailock = 1
 	check_synth	 = 0
@@ -73,6 +74,14 @@
 	check_records = 1
 	check_weapons = 1
 	check_anomalies = 1
+
+/obj/machinery/porta_turret/centcom/pulse
+	name = "Pulse Turret"
+	health = 200
+	enabled = 1
+	lethal = 1
+	req_access = list(access_cent_commander)
+	installation = /obj/item/weapon/gun/energy/pulse/turret
 
 /obj/machinery/porta_turret/stationary
 	ailock = 1
@@ -148,6 +157,10 @@
 			eprojectile = /obj/item/projectile/beam	//If it has, going to copypaste mode
 			eshot_sound = 'sound/weapons/Laser.ogg'
 			egun = 1
+
+		if(/obj/item/weapon/gun/energy/pulse/turret)
+			eprojectile = /obj/item/projectile/beam/pulse
+			eshot_sound = 'sound/weapons/pulse.ogg'
 
 var/list/turret_icons
 /obj/machinery/porta_turret/update_icon()
@@ -720,11 +733,14 @@ var/list/turret_icons
 	// Emagged turrets again use twice as much power due to higher firing rates
 	use_power(reqpower * (2 * (emagged || lethal)) * (2 * emagged))
 
-	A.original = target
-	A.current = T
-	A.yo = U.y - T.y
-	A.xo = U.x - T.x
-	A.fire()
+	if(istype(A))
+		A.original = target
+		A.current = T
+		A.yo = U.y - T.y
+		A.xo = U.x - T.x
+		A.fire()
+	else
+		A.throw_at(target, scan_range, 1)
 	return A
 
 /datum/turret_checks
@@ -1049,4 +1065,3 @@ var/list/turret_icons
 	health = 100
 	projectile = /obj/item/projectile/bullet/weakbullet3
 	eprojectile = /obj/item/projectile/bullet/midbullet
-

@@ -29,7 +29,7 @@
 /datum/gear/suit/coat/job/med
 	display_name = "winter coat, medical"
 	path = /obj/item/clothing/suit/hooded/wintercoat/medical
-	allowed_roles = list("Chief Medical Officer", "Medical Doctor", "Chemist", "Psychiatrist", "Paramedic", "Virologist", "Brig Physician")
+	allowed_roles = list("Chief Medical Officer", "Medical Doctor", "Chemist", "Psychiatrist", "Paramedic", "Virologist", "Brig Physician" , "Coroner")
 
 /datum/gear/suit/coat/job/sci
 	display_name = "winter coat, science"
@@ -144,6 +144,18 @@
 /datum/gear/suit/blackhoodie
 	display_name = "hoodie, black"
 	path = /obj/item/clothing/suit/hooded/hoodie
+
+/datum/gear/suit/corset
+	display_name = "black corset"
+	path = /obj/item/clothing/suit/corset
+
+/datum/gear/suit/corsetred
+	display_name = "red corset"
+	path = /obj/item/clothing/suit/corset/red
+
+/datum/gear/suit/corsetblue
+	display_name = "blue corset"
+	path = /obj/item/clothing/suit/corset/blue
 
 //SUITS!
 

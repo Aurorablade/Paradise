@@ -1,4 +1,3 @@
-//This file was auto-corrected by findeclaration.exe on 25.5.2012 20:42:32
 #define CULT_ELDERGOD "eldergod"
 #define CULT_SLAUGHTER "slaughter"
 
@@ -24,7 +23,7 @@
 	icon_state ="tome"
 	throw_speed = 2
 	throw_range = 5
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	var/scribereduct = 0
 	var/canbypass = 0 //ADMINBUS
 

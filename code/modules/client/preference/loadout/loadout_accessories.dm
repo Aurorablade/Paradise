@@ -134,8 +134,25 @@
 	display_name = "cowboy shirt, short sleeved navy"
 	path = /obj/item/clothing/accessory/cowboyshirt/navy/short_sleeved
 
+/datum/gear/accessory/locket
+	display_name = "gold locket"
+	path = /obj/item/clothing/accessory/necklace/locket
 
+/datum/gear/accessory/necklace
+	display_name = "simple necklace"
+	path = /obj/item/clothing/accessory/necklace
 
+/datum/gear/accessory/corset
+	display_name = "corset, black"
+	path = /obj/item/clothing/accessory/corset
+
+/datum/gear/accessory/corsetred
+	display_name = "corset, red"
+	path = /obj/item/clothing/accessory/corset/red
+
+/datum/gear/accessory/corsetblue
+	display_name = "corset, blue"
+	path = /obj/item/clothing/accessory/corset/blue
 
 
 

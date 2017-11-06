@@ -5,7 +5,7 @@
 	icon = 'icons/obj/tiles.dmi'
 	icon_state = "tile"
 	item_state = "tile"
-	w_class = 3
+	w_class = WEIGHT_CLASS_NORMAL
 	force = 1
 	throwforce = 1
 	throw_speed = 5
@@ -100,6 +100,11 @@
 	turf_type = /turf/simulated/floor/carpet
 	burn_state = FLAMMABLE
 
+/obj/item/stack/tile/carpet/black
+	name = "black carpet"
+	icon_state = "tile-carpet-black"
+	turf_type = /turf/simulated/floor/carpet/black
+
 //Plasteel
 /obj/item/stack/tile/plasteel
 	name = "floor tiles"
@@ -161,3 +166,15 @@
 	desc = "A grooved floor tile."
 	icon_state = "tile_pod"
 	turf_type = /turf/simulated/floor/pod
+
+/obj/item/stack/tile/arcade_carpet
+	name = "arcade carpet"
+	singular_name = "arcade carpet"
+	desc= "A piece of carpet with a retro spaceship pattern."
+	icon_state = "tile_space"
+	turf_type = /turf/simulated/floor/carpet/arcade
+	merge_type = /obj/item/stack/tile/arcade_carpet
+	burn_state = FLAMMABLE
+
+/obj/item/stack/tile/arcade_carpet/loaded
+	amount = 20

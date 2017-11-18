@@ -123,6 +123,7 @@ var/global/list/datum/stack_recipe/metal_recipes = list(
  */
 var/global/list/datum/stack_recipe/plasteel_recipes = list(
 	new /datum/stack_recipe("AI core", /obj/structure/AIcore, 4, time = 50, one_per_turf = 1),
+	new /datum/stack_recipe("bomb assembly", /obj/machinery/syndicatebomb/empty, 10, time = 50),
 	new /datum/stack_recipe("Surgery Table", /obj/machinery/optable, 5, time = 50, one_per_turf = 1, on_floor = 1),
 	new /datum/stack_recipe("Metal crate", /obj/structure/closet/crate, 10, time = 50, one_per_turf = 1),
 	new /datum/stack_recipe("Mass Driver frame", /obj/machinery/mass_driver_frame, 3, time = 50, one_per_turf = 1)
@@ -237,6 +238,7 @@ var/global/list/datum/stack_recipe/cardboard_recipes = list (
 	new /datum/stack_recipe("folder", /obj/item/weapon/folder),
 	new /datum/stack_recipe("cardboard tube", /obj/item/weapon/c_tube),
 	new /datum/stack_recipe("cardboard box", /obj/structure/closet/cardboard, 4),
+	new/datum/stack_recipe("cardboard cutout", /obj/item/cardboard_cutout, 5),
 )
 
 /obj/item/stack/sheet/cardboard	//BubbleWrap
@@ -256,13 +258,13 @@ var/global/list/datum/stack_recipe/cardboard_recipes = list (
  * Runed Metal
  */
 
-var/global/list/datum/stack_recipe/runed_metal_recipes = list ( \
-	new/datum/stack_recipe("runed door", /obj/machinery/door/airlock/cult, 1, time = 50, one_per_turf = 1, on_floor = 1),
-	new/datum/stack_recipe("runed girder", /obj/structure/girder/cult, 1, time = 50, one_per_turf = 1, on_floor = 1), \
-	new/datum/stack_recipe("pylon", /obj/structure/cult/functional/pylon, 3, time = 40, one_per_turf = 1, on_floor = 1), \
-	new/datum/stack_recipe("forge", /obj/structure/cult/functional/forge, 5, time = 40, one_per_turf = 1, on_floor = 1), \
-	new/datum/stack_recipe("archives", /obj/structure/cult/functional/tome, 2, time = 40, one_per_turf = 1, on_floor = 1), \
-	new/datum/stack_recipe("altar", /obj/structure/cult/functional/talisman, 5, time = 40, one_per_turf = 1, on_floor = 1), \
+var/global/list/datum/stack_recipe/cult = list ( \
+	new/datum/stack_recipe/cult("runed door", /obj/machinery/door/airlock/cult, 1, time = 50, one_per_turf = 1, on_floor = 1),
+	new/datum/stack_recipe/cult("runed girder", /obj/structure/girder/cult, 1, time = 50, one_per_turf = 1, on_floor = 1), \
+	new/datum/stack_recipe/cult("pylon", /obj/structure/cult/functional/pylon, 3, time = 40, one_per_turf = 1, on_floor = 1), \
+	new/datum/stack_recipe/cult("forge", /obj/structure/cult/functional/forge, 5, time = 40, one_per_turf = 1, on_floor = 1), \
+	new/datum/stack_recipe/cult("archives", /obj/structure/cult/functional/tome, 2, time = 40, one_per_turf = 1, on_floor = 1), \
+	new/datum/stack_recipe/cult("altar", /obj/structure/cult/functional/talisman, 5, time = 40, one_per_turf = 1, on_floor = 1), \
 	)
 
 /obj/item/stack/sheet/runed_metal
@@ -278,13 +280,27 @@ var/global/list/datum/stack_recipe/runed_metal_recipes = list ( \
 	if(!iscultist(user))
 		to_chat(user, "<span class='warning'>Only one with forbidden knowledge could hope to work this metal...</span>")
 		return
+	if(!is_level_reachable(user.z))
+		to_chat(user, "<span class='warning'>The energies of this place interfere with the metal shaping!</span>")
+		return
+
 	return ..()
+
+/datum/stack_recipe/cult
+   one_per_turf = 1
+   on_floor = 1
+
+/datum/stack_recipe/cult/post_build(obj/item/stack/S, obj/result)
+   if(ishuman(S.loc))
+      var/mob/living/carbon/human/H = S.loc
+      H.bleed(5)
+   ..()
 
 /obj/item/stack/sheet/runed_metal/fifty
 	amount = 50
 
 /obj/item/stack/sheet/runed_metal/New(var/loc, var/amount=null)
-	recipes = runed_metal_recipes
+	recipes = cult
 	return ..()
 
 /*
@@ -298,7 +314,7 @@ var/global/list/datum/stack_recipe/runed_metal_recipes = list ( \
 	desc = "Someone's been drinking their milk."
 	force = 7
 	throwforce = 5
-	w_class = 3
+	w_class = WEIGHT_CLASS_NORMAL
 	throw_speed = 1
 	throw_range = 3
 	origin_tech = "materials=2;biotech=2"

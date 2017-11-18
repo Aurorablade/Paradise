@@ -5,7 +5,7 @@
 	item_state = "brown"
 	permeability_coefficient = 0.05
 	flags = NOSLIP
-	origin_tech = "syndicate=3"
+	origin_tech = "syndicate=2"
 	burn_state = FIRE_PROOF
 	var/list/clothing_choices = list()
 	silence_steps = 1
@@ -175,27 +175,15 @@
 	item_color = "noble_boot"
 	item_state = "noble_boot"
 
-
 /obj/item/clothing/shoes/attackby(obj/item/I, mob/user, params)
-	if(istype(I, /obj/item/shoe_silencer))
-		silence_steps = 1
-		shoe_sound = null
-		user.unEquip(I)
-		qdel(I)
-	else . = ..()
-
-/obj/item/shoe_silencer
-	name = "shoe rags"
-	desc = "Looks sneaky."
-	icon_state = "sheet-cloth"
-
-/datum/crafting_recipe/shoe_rags
-	name = "Shoe Rags"
-	result = /obj/item/shoe_silencer
-	reqs = list(/obj/item/stack/tape_roll = 10)
-	tools = list(/obj/item/weapon/wirecutters)
-	time = 40
-	category = CAT_MISC
+	if(istype(I, /obj/item/stack/tape_roll))
+		var/obj/item/stack/tape_roll/TR = I
+		if((!silence_steps || shoe_sound) && TR.use(4))
+			silence_steps = 1
+			shoe_sound = null
+			to_chat(user, "You tape the soles of [src] to silence your footsteps.")
+	else
+		return ..()
 
 /obj/item/clothing/shoes/sandal/white
 	name = "White Sandals"
@@ -256,3 +244,12 @@
 	desc = "For a Rustlin' tustlin' cowgirl."
 	icon_state = "cowboyboots_pink"
 	item_color = "cowboyboots_pink"
+
+/obj/item/clothing/shoes/footwraps
+ 	name = "cloth footwraps"
+ 	desc = "A roll of treated canvas used for wrapping claws or paws."
+ 	icon_state = "clothwrap"
+ 	item_state = "clothwrap"
+ 	force = 0
+ 	silence_steps = TRUE
+ 	w_class = WEIGHT_CLASS_SMALL

@@ -11,7 +11,7 @@
 	icon_living = "morph"
 	icon_dead = "morph_dead"
 	speed = 2
-	a_intent = "harm"
+	a_intent = INTENT_HARM
 	stop_automated_movement = 1
 	status_flags = CANPUSH
 	pass_flags = PASSTABLE
@@ -108,8 +108,6 @@
 	morphed = 0
 	form = null
 
-	//anim(loc,src,'icons/mob/mob.dmi',,"morph",,src.dir)
-
 	visible_message("<span class='warning'>[src] suddenly collapses in on itself, dissolving into a pile of green flesh!</span>", \
 					"<span class='notice'>You reform to your normal body.</span>")
 	name = initial(name)
@@ -168,4 +166,3 @@
 				eat(I)
 			return
 	target.attack_animal(src)
-

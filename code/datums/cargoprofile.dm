@@ -1,4 +1,3 @@
-#define MAXCOIL 30
 /datum/cargoprofile
 	var/name = "All Items"
 	var/id = "all" // unique ID for the UI
@@ -139,8 +138,7 @@
 	whitelist = list(/obj/item/stack/cable_coil,/obj/item/stack/rods,
 					/obj/item/stack/sheet/metal,/obj/item/stack/sheet/plasteel,
 					/obj/item/stack/sheet/glass,/obj/item/stack/sheet/rglass,
-					/obj/item/stack/tile,/obj/item/weapon/light,
-					/obj/item/weapon/table_parts)
+					/obj/item/stack/tile,/obj/item/weapon/light)
 	//todo: maybe stack things while we're here?
 
 /datum/cargoprofile/exotics
@@ -246,9 +244,9 @@
 	//Note that this filters out blueprints because they are a paper item.  Do NOT throw out the station blueprints unless you be trollin'.
 	blacklist = null
 	whitelist = list(/obj/item/trash,/obj/item/toy,/obj/item/weapon/reagent_containers/food/snacks/ectoplasm,/obj/item/weapon/grown/bananapeel,/obj/item/weapon/broken_bottle,/obj/item/weapon/bikehorn,
-					/obj/item/weapon/cigbutt,/obj/item/weapon/contraband,/obj/item/weapon/grown/corncob,/obj/item/weapon/paper,/obj/item/weapon/shard,
+					/obj/item/weapon/cigbutt,/obj/item/weapon/poster/random_contraband,/obj/item/weapon/grown/corncob,/obj/item/weapon/paper,/obj/item/weapon/shard,
 					/obj/item/weapon/sord,/obj/item/weapon/photo,/obj/item/weapon/folder,
-					/obj/item/areaeditor/blueprints,/obj/item/weapon/contraband,/obj/item/weapon/kitchen,/obj/item/weapon/book,/obj/item/clothing/mask/facehugger)
+					/obj/item/areaeditor/blueprints,/obj/item/weapon/poster/random_contraband,/obj/item/weapon/kitchen,/obj/item/weapon/book,/obj/item/clothing/mask/facehugger)
 
 /datum/cargoprofile/weapons
 	name = "Weapons & Illegals"
@@ -788,4 +786,3 @@
 		var/punches = punch(M,remaining / PUNCH_WORK)
 		if(punches>1)master.sleep++
 		return punches * PUNCH_WORK
-#undef MAXCOIL

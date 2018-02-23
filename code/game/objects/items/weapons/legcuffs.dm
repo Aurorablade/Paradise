@@ -6,8 +6,8 @@
 	icon_state = "handcuff"
 	flags = CONDUCT
 	throwforce = 0
-	w_class = 3
-	origin_tech = "materials=1"
+	w_class = WEIGHT_CLASS_NORMAL
+	origin_tech = "engineering=3;combat=3"
 	slowdown = 7
 	breakouttime = 300	//Deciseconds = 30s = 0.5 minute
 
@@ -17,6 +17,7 @@
 	throw_range = 1
 	icon_state = "beartrap"
 	desc = "A trap used to catch bears and other legged creatures."
+	origin_tech = "engineering=4"
 	var/armed = 0
 	var/trap_damage = 20
 	var/obj/item/weapon/grenade/iedcasing/IED = null
@@ -51,23 +52,12 @@
 		if(sig)
 			to_chat(user, "<span class='warning'>This beartrap already has a signaler hooked up to it!</span>")
 			return
-		IED = I
-		switch(IED.assembled)
-			if(0,1) //if it's not fueled/hooked up
-				to_chat(user, "<span class='warning'>You haven't prepared this IED yet!</span>")
-				IED = null
-				return
-			if(2,3)
-				user.drop_item()
-				I.forceMove(src)
-				message_admins("[key_name_admin(user)] has rigged a beartrap with an IED.")
-				log_game("[key_name(user)] has rigged a beartrap with an IED.")
-				to_chat(user, "<span class='notice'>You sneak the [IED] underneath the pressure plate and connect the trigger wire.</span>")
-				desc = "A trap used to catch bears and other legged creatures. <span class='warning'>There is an IED hooked up to it.</span>"
-			else
-				to_chat(user, "<span class='danger'>You shouldn't be reading this message! Contact a coder or someone, something broke!</span>")
-				IED = null
-				return
+		user.drop_item()
+		I.forceMove(src)
+		message_admins("[key_name_admin(user)] has rigged a beartrap with an IED.")
+		log_game("[key_name(user)] has rigged a beartrap with an IED.")
+		to_chat(user, "<span class='notice'>You sneak [IED] underneath the pressure plate and connect the trigger wire.</span>")
+		desc = "A trap used to catch bears and other legged creatures. <span class='warning'>There is an IED hooked up to it.</span>"
 	if(istype(I, /obj/item/device/assembly/signaler))
 		if(IED)
 			to_chat(user, "<span class='warning'>This beartrap already has an IED hooked up to it!</span>")
@@ -109,9 +99,6 @@
 
 			if(IED && isturf(src.loc))
 				IED.active = 1
-				IED.overlays -= image('icons/obj/grenade.dmi', icon_state = "improvised_grenade_filled")
-				IED.icon_state = initial(icon_state) + "_active"
-				IED.assembled = 3
 				message_admins("[key_name_admin(usr)] has triggered an IED-rigged [name].")
 				log_game("[key_name(usr)] has triggered an IED-rigged [name].")
 				spawn(IED.det_time)
@@ -126,7 +113,7 @@
 					H.apply_damage(trap_damage, BRUTE,"chest")
 				else
 					H.apply_damage(trap_damage, BRUTE,(pick("l_leg", "r_leg")))
-				if(!H.legcuffed) //beartrap can't cuff you leg if there's already a beartrap or legcuffs.
+				if(!H.legcuffed && H.get_num_legs() >= 2) //beartrap can't cuff you leg if there's already a beartrap or legcuffs.
 					H.legcuffed = src
 					forceMove(H)
 					H.update_inv_legcuffed()
@@ -146,7 +133,7 @@
 	..()
 	spawn(100)
 		if(!istype(loc, /mob))
-			var/datum/effect/system/spark_spread/sparks = new /datum/effect/system/spark_spread
+			var/datum/effect_system/spark_spread/sparks = new /datum/effect_system/spark_spread
 			sparks.set_up(1, 1, src)
 			sparks.start()
 			qdel(src)
@@ -196,7 +183,7 @@
 	desc = "A specialized hard-light bola designed to ensnare fleeing criminals and aid in arrests."
 	icon_state = "ebola"
 	hitsound = 'sound/weapons/tase.ogg'
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	breakouttime = 60
 
 /obj/item/weapon/restraints/legcuffs/bola/energy/throw_impact(atom/hit_atom)

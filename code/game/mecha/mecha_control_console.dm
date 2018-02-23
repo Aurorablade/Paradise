@@ -41,9 +41,9 @@
 	if(..())
 		return 1
 
-	var/datum/topic_input/filter = new /datum/topic_input(href,href_list)
+	var/datum/topic_input/afilter = new /datum/topic_input(href,href_list)
 	if(href_list["send_message"])
-		var/obj/item/mecha_parts/mecha_tracking/MT = filter.getObj("send_message")
+		var/obj/item/mecha_parts/mecha_tracking/MT = afilter.getObj("send_message")
 		var/message = strip_html_simple(input(usr,"Input message","Transmit message") as text)
 		if(!trim(message) || ..())
 			return 1
@@ -52,11 +52,11 @@
 			M.occupant_message(message)
 
 	if(href_list["shock"])
-		var/obj/item/mecha_parts/mecha_tracking/MT = filter.getObj("shock")
+		var/obj/item/mecha_parts/mecha_tracking/MT = afilter.getObj("shock")
 		MT.shock()
 
 	if(href_list["get_log"])
-		var/obj/item/mecha_parts/mecha_tracking/MT = filter.getObj("get_log")
+		var/obj/item/mecha_parts/mecha_tracking/MT = afilter.getObj("get_log")
 		stored_data = MT.get_mecha_log()
 		screen = 1
 
@@ -71,7 +71,7 @@
 	desc = "Device used to transmit exosuit data."
 	icon = 'icons/obj/device.dmi'
 	icon_state = "motion2"
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	origin_tech = "programming=2;magnets=2"
 	var/ai_beacon = FALSE //If this beacon allows for AI control. Exists to avoid using istype() on checking.
 

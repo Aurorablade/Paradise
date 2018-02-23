@@ -92,18 +92,13 @@
 				return
 	return
 
-/obj/structure/morgue/alter_health()
-	return loc
-
-
 /obj/structure/morgue/attack_hand(mob/user as mob)
 	if(connected)
 		for(var/atom/movable/A as mob|obj in connected.loc)
 			if(!( A.anchored ))
 				A.forceMove(src)
 		playsound(loc, open_sound, 50, 1)
-		qdel(connected)
-		connected = null
+		QDEL_NULL(connected)
 	else
 		playsound(loc, open_sound, 50, 1)
 		connected = new /obj/structure/m_tray( loc )
@@ -118,8 +113,7 @@
 			connected.icon_state = "morguet"
 			connected.dir = dir
 		else
-			qdel(connected)
-			connected = null
+			QDEL_NULL(connected)
 	add_fingerprint(user)
 	update()
 	return
@@ -155,8 +149,7 @@
 			A.forceMove(connected.loc)
 		connected.icon_state = "morguet"
 	else
-		qdel(connected)
-		connected = null
+		QDEL_NULL(connected)
 	return
 
 /obj/structure/morgue/Destroy()
@@ -183,14 +176,14 @@
  */
 /obj/structure/m_tray
 	name = "morgue tray"
-	desc = "Apply corpse before closing."
+	desc = "Apply corpse before closing. May float away in no-gravity."
 	icon = 'icons/obj/stationobjs.dmi'
 	icon_state = "morguet"
 	density = 1
 	layer = 2.0
 	var/obj/structure/morgue/connected = null
 	anchored = 1.0
-	throwpass = 1
+	pass_flags = LETPASSTHROW
 
 
 /obj/structure/m_tray/attack_hand(mob/user as mob)
@@ -293,10 +286,6 @@
 				return
 	return
 
-/obj/structure/crematorium/alter_health()
-	return loc
-
-
 /obj/structure/crematorium/attack_hand(mob/user as mob)
 	if(cremating)
 		to_chat(usr, "<span class='warning'>It's locked.</span>")
@@ -306,8 +295,7 @@
 			if(!( A.anchored ))
 				A.forceMove(src)
 		playsound(loc, open_sound, 50, 1)
-		qdel(connected)
-		connected = null
+		QDEL_NULL(connected)
 	else if(locked == 0)
 		playsound(loc, open_sound, 50, 1)
 		connected = new /obj/structure/c_tray( loc )
@@ -321,8 +309,7 @@
 				A.forceMove(connected.loc)
 			connected.icon_state = "cremat"
 		else
-			qdel(connected)
-			connected = null
+			QDEL_NULL(connected)
 	add_fingerprint(user)
 	update()
 
@@ -355,8 +342,7 @@
 			A.forceMove(connected.loc)
 		connected.icon_state = "cremat"
 	else
-		qdel(connected)
-		connected = null
+		QDEL_NULL(connected)
 	return
 
 /obj/structure/crematorium/proc/cremate(mob/user as mob)
@@ -432,7 +418,7 @@
 	layer = 2.0
 	var/obj/structure/crematorium/connected = null
 	anchored = 1.0
-	throwpass = 1
+	pass_flags = LETPASSTHROW
 
 /obj/structure/c_tray/attack_hand(mob/user as mob)
 	if(connected)

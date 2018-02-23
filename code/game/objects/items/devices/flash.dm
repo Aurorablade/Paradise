@@ -4,7 +4,7 @@
 	icon_state = "flash"
 	item_state = "flashtool"	//looks exactly like a flash (and nothing like a flashbang)
 	throwforce = 0
-	w_class = 1
+	w_class = WEIGHT_CLASS_TINY
 	throw_speed = 3
 	throw_range = 7
 	flags = CONDUCT
@@ -39,6 +39,11 @@
 			overcharged = 1
 			overlays += "overcharge"
 
+/obj/item/device/flash/random/New()
+	..()
+	if(prob(25))
+		broken = 1
+		icon_state = "[initial(icon_state)]burnt"
 
 /obj/item/device/flash/proc/burn_out() //Made so you can override it if you want to have an invincible flash from R&D or something.
 	broken = 1
@@ -117,7 +122,7 @@
 				for(var/obj/item/borg/combat/shield/S in R.module.modules)
 					if(R.activated(S))
 						add_logs(user, M, "flashed", object="[src.name]")
-						user.visible_message("<span class='disarm'>[user] tries to overloads [M]'s sensors with the [src.name], but if blocked by [M]'s shield!</span>", "<span class='danger'>You try to overload [M]'s sensors with the [src.name], but are blocked by his shield!</span>")
+						user.visible_message("<span class='disarm'>[user] tries to overloads [M]'s sensors with the [src.name], but is blocked by [M]'s shield!</span>", "<span class='danger'>You try to overload [M]'s sensors with the [src.name], but are blocked by their shield!</span>")
 						return 1
 		add_logs(user, M, "flashed", object="[src.name]")
 		if(M.flash_eyes(affect_silicon = 1))
@@ -174,26 +179,49 @@
 
 /obj/item/device/flash/cyborg/attack(mob/living/M, mob/user)
 	..()
-	cyborg_flash_animation(user)
+	new /obj/effect/temp_visual/borgflash(get_turf(src))
 
 /obj/item/device/flash/cyborg/attack_self(mob/user)
 	..()
-	cyborg_flash_animation(user)
-
-/obj/item/device/flash/cyborg/proc/cyborg_flash_animation(var/mob/living/user)
-	var/atom/movable/overlay/animation = new(user.loc)
-	animation.layer = user.layer + 1
-	animation.icon_state = "blank"
-	animation.icon = 'icons/mob/mob.dmi'
-	animation.master = user
-	flick("blspell", animation)
-	sleep(5)
-	qdel(animation)
+	new /obj/effect/temp_visual/borgflash(get_turf(src))
 
 /obj/item/device/flash/memorizer
 	name = "memorizer"
 	desc = "If you see this, you're not likely to remember it any time soon."
 	icon_state = "memorizer"
 	item_state = "nullrod"
+
+/obj/item/device/flash/armimplant
+	name = "photon projector"
+	desc = "A high-powered photon projector implant normally used for lighting purposes, but also doubles as a flashbulb weapon. Self-repair protocals fix the flashbulb if it ever burns out."
+	var/flashcd = 20
+	var/overheat = 0
+	var/obj/item/organ/internal/cyberimp/arm/flash/I = null
+
+/obj/item/device/flash/armimplant/Destroy()
+	I = null
+	return ..()
+
+/obj/item/device/flash/armimplant/burn_out()
+	if(I && I.owner)
+		to_chat(I.owner, "<span class='warning'>Your photon projector implant overheats and deactivates!</span>")
+		I.Retract()
+	overheat = FALSE
+	addtimer(src, "cooldown", flashcd * 2)
+
+/obj/item/device/flash/armimplant/try_use_flash(mob/user = null)
+	if(overheat)
+		if(I && I.owner)
+			to_chat(I.owner, "<span class='warning'>Your photon projector is running too hot to be used again so quickly!</span>")
+		return FALSE
+	overheat = TRUE
+	addtimer(src, "cooldown", flashcd)
+	playsound(src.loc, 'sound/weapons/flash.ogg', 100, 1)
+	update_icon(1)
+	return TRUE
+
+/obj/item/device/flash/armimplant/proc/cooldown()
+	overheat = FALSE
+
 
 /obj/item/device/flash/synthetic //just a regular flash now

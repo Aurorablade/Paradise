@@ -15,8 +15,6 @@
  #define FILE_DRM      16  // Some files want to not be copied/moved.  This is them complaining that you tried.
  #define NETWORK_FAILURE  32
 
-#define MINERAL_MATERIAL_AMOUNT 2000 //The amount of materials you get from a sheet of mineral like iron/diamond/glass etc
-
 #define	IMPRINTER		1	//For circuits. Uses glass/chemicals.
 #define PROTOLATHE		2	//New stuff. Uses glass/metal/chemicals
 #define	AUTOLATHE		4	//Uses glass/metal only.
@@ -71,3 +69,10 @@
 #define PROGRAM_STATE_KILLED 0
 #define PROGRAM_STATE_BACKGROUND 1
 #define PROGRAM_STATE_ACTIVE 2
+
+// Demotion Console (card/minor/*) departments
+#define TARGET_DEPT_GENERIC 1
+#define TARGET_DEPT_SEC 2
+#define TARGET_DEPT_MED 3
+#define TARGET_DEPT_SCI 4
+#define TARGET_DEPT_ENG 5

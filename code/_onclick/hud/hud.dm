@@ -36,8 +36,6 @@
 	var/obj/screen/movable/action_button/hide_toggle/hide_actions_toggle
 	var/action_buttons_hidden = 0
 
-	var/obj/screen/internals
-
 /mob/proc/create_mob_hud()
 	if(client && !hud_used)
 		hud_used = new /datum/hud(src)
@@ -81,7 +79,6 @@
 	alien_plasma_display = null
 	vampire_blood_display = null
 	nightvisionicon = null
-	internals = null
 
 	mymob = null
 	return ..()
@@ -99,6 +96,15 @@
 		display_hud_version = hud_version + 1
 	if(display_hud_version > HUD_VERSIONS)	//If the requested version number is greater than the available versions, reset back to the first version
 		display_hud_version = 1
+
+	if(mymob.client.view < world.view)
+		if(mymob.client.view < ARBITRARY_VIEWRANGE_NOHUD)
+			to_chat(mymob, "<span class='notice'>HUD is unavailable with this view range.</span>")
+			display_hud_version = HUD_STYLE_NOHUD
+		else
+			if(display_hud_version == HUD_STYLE_STANDARD)
+				to_chat(mymob, "<span class='notice'>Standard HUD mode is unavailable with a smaller-than-normal view range.</span>")
+				display_hud_version = HUD_STYLE_REDUCED
 
 	switch(display_hud_version)
 		if(HUD_STYLE_STANDARD)	//Default HUD

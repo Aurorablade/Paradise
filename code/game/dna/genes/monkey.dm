@@ -25,13 +25,8 @@
 	H.icon = null
 	H.invisibility = 101
 
-	var/atom/movable/overlay/animation = new /atom/movable/overlay(H.loc)
-	animation.icon_state = "blank"
-	animation.icon = 'icons/mob/mob.dmi'
-	animation.master = H
-	flick("h2monkey", animation)
+	new /obj/effect/temp_visual/monkeyify(H.loc)
 	sleep(22)
-	qdel(animation)
 
 	H.SetStunned(0)
 	H.invisibility = initial(H.invisibility)
@@ -42,9 +37,7 @@
 
 	H.set_species(H.species.primitive_form)
 
-	if(H.hud_used)
-		qdel(H.hud_used)
-		H.hud_used = null
+	QDEL_NULL(H.hud_used)
 
 	if(H.client)
 		H.hud_used = new /datum/hud/monkey(H, ui_style2icon(H.client.prefs.UI_style), H.client.prefs.UI_style_color, H.client.prefs.UI_style_alpha)
@@ -70,13 +63,8 @@
 	H.icon = null
 	H.invisibility = 101
 
-	var/atom/movable/overlay/animation = new /atom/movable/overlay(H.loc)
-	animation.icon_state = "blank"
-	animation.icon = 'icons/mob/mob.dmi'
-	animation.master = H
-	flick("monkey2h", animation)
+	new /obj/effect/temp_visual/monkeyify/humanify(H.loc)
 	sleep(22)
-	qdel(animation)
 
 	H.SetStunned(0)
 	H.invisibility = initial(H.invisibility)
@@ -89,9 +77,7 @@
 	H.real_name = H.dna.real_name
 	H.name = H.real_name
 
-	if(H.hud_used)
-		qdel(H.hud_used)
-		H.hud_used = null
+	QDEL_NULL(H.hud_used)
 
 	if(H.client)
 		H.hud_used = new /datum/hud/human(H, ui_style2icon(H.client.prefs.UI_style), H.client.prefs.UI_style_color, H.client.prefs.UI_style_alpha)

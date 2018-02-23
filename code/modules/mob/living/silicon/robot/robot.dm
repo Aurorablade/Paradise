@@ -50,6 +50,12 @@ var/list/robot_verbs_default = list(
 
 	var/opened = 0
 	var/emagged = 0
+
+	var/list/force_modules = list()
+	var/allow_rename = TRUE
+	var/weapons_unlock = FALSE
+	var/static_radio_channels = FALSE
+
 	var/wiresexposed = 0
 	var/locked = 1
 	var/list/req_access = list(access_robotics)
@@ -59,7 +65,7 @@ var/list/robot_verbs_default = list(
 	var/viewalerts = 0
 	var/modtype = "Default"
 	var/lower_mod = 0
-	var/datum/effect/system/spark_spread/spark_system//So they can initialize sparks whenever/N
+	var/datum/effect_system/spark_spread/spark_system//So they can initialize sparks whenever/N
 	var/jeton = 0
 	var/low_power_mode = 0 //whether the robot has no charge left.
 	var/weapon_lock = 0
@@ -68,6 +74,7 @@ var/list/robot_verbs_default = list(
 	var/lockcharge //Used when locking down a borg to preserve cell charge
 	var/speed = 0 //Cause sec borgs gotta go fast //No they dont!
 	var/scrambledcodes = 0 // Used to determine if a borg shows up on the robotics console.  Setting to one hides them.
+	var/pdahide = 0 //Used to hide the borg from the messenger list
 	var/tracking_entities = 0 //The number of known entities currently accessing the internal camera
 	var/braintype = "Cyborg"
 	var/base_icon = ""
@@ -84,13 +91,13 @@ var/list/robot_verbs_default = list(
 	var/magpulse = 0
 	var/ionpulse = 0 // Jetpack-like effect.
 	var/ionpulse_on = 0 // Jetpack-like effect.
-	var/datum/effect/system/ion_trail_follow/ion_trail // Ionpulse effect.
+	var/datum/effect_system/trail_follow/ion/ion_trail // Ionpulse effect.
 
 	var/datum/action/item_action/toggle_research_scanner/scanner = null
 	var/list/module_actions = list()
 
 /mob/living/silicon/robot/New(loc,var/syndie = 0,var/unfinished = 0, var/alien = 0)
-	spark_system = new /datum/effect/system/spark_spread()
+	spark_system = new /datum/effect_system/spark_spread()
 	spark_system.set_up(5, 0, src)
 	spark_system.attach(src)
 
@@ -193,6 +200,7 @@ var/list/robot_verbs_default = list(
 
 	return 1
 
+
 /mob/living/silicon/robot/proc/get_default_name(var/prefix as text)
 	if(prefix)
 		modtype = prefix
@@ -213,7 +221,9 @@ var/list/robot_verbs_default = list(
 	set category = "Robot Commands"
 	if(custom_name)
 		return 0
-
+	if(!allow_rename)
+		to_chat(src, "<span class='warning'>Rename functionality is not enabled on this unit.</span>");
+		return 0
 	rename_self(braintype, 1)
 
 /mob/living/silicon/robot/proc/sync()
@@ -226,10 +236,12 @@ var/list/robot_verbs_default = list(
 	if(!rbPDA)
 		rbPDA = new(src)
 	rbPDA.set_name_and_job(real_name, braintype)
-	if(scrambledcodes)
-		var/datum/data/pda/app/messenger/M = rbPDA.find_program(/datum/data/pda/app/messenger)
-		if(M)
+	var/datum/data/pda/app/messenger/M = rbPDA.find_program(/datum/data/pda/app/messenger)
+	if(M)
+		if(scrambledcodes)
 			M.hidden = 1
+		if(pdahide)
+			M.toff = 1
 
 /mob/living/silicon/robot/binarycheck()
 	if(is_component_functioning("comms"))
@@ -263,13 +275,15 @@ var/list/robot_verbs_default = list(
 	if(module)
 		return
 	var/list/modules = list("Standard", "Engineering", "Medical", "Miner", "Janitor", "Service", "Security")
+	if(islist(force_modules) && force_modules.len)
+		modules = force_modules.Copy()
 	if(security_level == (SEC_LEVEL_GAMMA || SEC_LEVEL_EPSILON) || crisis)
 		to_chat(src, "<span class='warning'>Crisis mode active. Combat module available.</span>")
-		modules+="Combat"
+		modules += "Combat"
 	if(ticker && ticker.mode && ticker.mode.name == "nations")
 		var/datum/game_mode/nations/N = ticker.mode
 		if(N.kickoff)
-			modules = list("Peacekeeper")
+			modules = list("Nations")
 	if(mmi != null && mmi.alien)
 		modules = "Hunter"
 	modtype = input("Please, select a module!", "Robot", null, null) as null|anything in modules
@@ -362,8 +376,8 @@ var/list/robot_verbs_default = list(
 			module.channels = list("Security" = 1)
 			icon_state =  "droidcombat"
 
-		if("Peacekeeper")
-			module = new /obj/item/weapon/robot_module/peacekeeper(src)
+		if("Nations")
+			module = new /obj/item/weapon/robot_module/nations(src)
 			module.channels = list()
 			icon_state = "droidpeace"
 
@@ -381,18 +395,19 @@ var/list/robot_verbs_default = list(
 	module.add_subsystems_and_actions(src)
 
 	//Custom_sprite check and entry
-	if(custom_sprite == 1)
+	if(custom_sprite && check_sprite("[ckey]-[modtype]"))
 		module_sprites["Custom"] = "[src.ckey]-[modtype]"
 
 	hands.icon_state = lowertext(module.module_type)
 	feedback_inc("cyborg_[lowertext(modtype)]",1)
 	rename_character(real_name, get_default_name())
 
-	if(modtype == "Medical" || modtype == "Security" || modtype == "Combat" || modtype == "Peacekeeper")
+	if(modtype == "Medical" || modtype == "Security" || modtype == "Combat" || modtype == "Nations")
 		status_flags &= ~CANPUSH
 
 	choose_icon(6,module_sprites)
-	radio.config(module.channels)
+	if(!static_radio_channels)
+		radio.config(module.channels)
 	notify_ai(2)
 
 //for borg hotkeys, here module refers to borg inv slot, not core module
@@ -480,7 +495,7 @@ var/list/robot_verbs_default = list(
 		toggle_ionpulse()
 		return
 
-	cell.charge -= 50 // 500 steps on a default cell.
+	cell.charge -= 25 // 500 steps on a default cell.
 	return 1
 
 /mob/living/silicon/robot/proc/toggle_ionpulse()
@@ -552,38 +567,6 @@ var/list/robot_verbs_default = list(
 	return 2
 
 
-/mob/living/silicon/robot/Bump(atom/movable/AM as mob|obj, yes)
-	spawn( 0 )
-		if((!( yes ) || now_pushing))
-			return
-		now_pushing = 1
-		if(ismob(AM))
-			var/mob/tmob = AM
-			if(istype(tmob, /mob/living/carbon/human) && (FAT in tmob.mutations))
-				if(prob(20))
-					to_chat(usr, "<span class='danger'>You fail to push [tmob]'s fat ass out of the way.</span>")
-					now_pushing = 0
-					return
-			if(!(tmob.status_flags & CANPUSH))
-				now_pushing = 0
-				return
-		now_pushing = 0
-		..()
-		if(!istype(AM, /atom/movable))
-			return
-		if(!now_pushing)
-			now_pushing = 1
-			if(!AM.anchored)
-				var/t = get_dir(src, AM)
-				if(istype(AM, /obj/structure/window/full))
-					for(var/obj/structure/window/win in get_step(AM,t))
-						now_pushing = 0
-						return
-				step(AM, t)
-			now_pushing = null
-		return
-	return
-
 /mob/living/silicon/robot/attackby(obj/item/weapon/W as obj, mob/user as mob, params)
 	if(istype(W, /obj/item/weapon/restraints/handcuffs)) // fuck i don't even know why isrobot() in handcuff code isn't working so this will have to do
 		return
@@ -607,7 +590,7 @@ var/list/robot_verbs_default = list(
 
 				return
 
-	if(istype(W, /obj/item/weapon/weldingtool) && user.a_intent == I_HELP)
+	if(istype(W, /obj/item/weapon/weldingtool) && user.a_intent == INTENT_HELP)
 		if(W == module_active)
 			return
 		if(!getBruteLoss())
@@ -626,7 +609,7 @@ var/list/robot_verbs_default = list(
 			return
 
 
-	else if(istype(W, /obj/item/stack/cable_coil) && user.a_intent == I_HELP && (wiresexposed || istype(src,/mob/living/silicon/robot/drone)))
+	else if(istype(W, /obj/item/stack/cable_coil) && user.a_intent == INTENT_HELP && (wiresexposed || istype(src,/mob/living/silicon/robot/drone)))
 		if(!getFireLoss())
 			to_chat(user, "<span class='notice'>Nothing to fix!</span>")
 			return
@@ -850,15 +833,15 @@ var/list/robot_verbs_default = list(
 
 	switch(M.a_intent)
 
-		if(I_HELP)
+		if(INTENT_HELP)
 			for(var/mob/O in viewers(src, null))
 				if((O.client && !( O.blinded )))
 					O.show_message(text("<span class='notice'>[M] caresses [src]'s plating with its scythe like arm.</span>"), 1)
 
-		if(I_GRAB)
+		if(INTENT_GRAB)
 			grabbedby(M)
 
-		if(I_HARM)
+		if(INTENT_HARM)
 			M.do_attack_animation(src)
 			var/damage = rand(10, 20)
 			if(prob(90))
@@ -874,7 +857,7 @@ var/list/robot_verbs_default = list(
 				visible_message("<span class='danger'>[M] took a swipe at [src]!</span>", \
 								"<span class='userdanger'>[M] took a swipe at [src]!</span>")
 
-		if(I_DISARM)
+		if(INTENT_DISARM)
 			if(!(lying))
 				M.do_attack_animation(src)
 				if(prob(85))
@@ -955,7 +938,7 @@ var/list/robot_verbs_default = list(
 			diag_hud_set_borgcell()
 
 	if(!opened && (!istype(user, /mob/living/silicon)))
-		if(user.a_intent == I_HELP)
+		if(user.a_intent == INTENT_HELP)
 			user.visible_message("<span class='notice'>[user] pets [src]!</span>", \
 								"<span class='notice'>You pet [src]!</span>")
 
@@ -990,7 +973,7 @@ var/list/robot_verbs_default = list(
 		else
 			overlays += "[panelprefix]-openpanel -c"
 
-	var/combat = list("Combat","Peacekeeper")
+	var/combat = list("Combat","Nations")
 	if(modtype in combat)
 		if(base_icon == "")
 			base_icon = icon_state
@@ -1031,7 +1014,7 @@ var/list/robot_verbs_default = list(
 			dat += text("<tr><td>[obj]</td><td><B>Activated</B></td></tr>")
 		else
 			dat += text("<tr><td>[obj]</td><td><A HREF=?src=[UID()];act=\ref[obj]>Activate</A></td></tr>")
-	if(emagged)
+	if(emagged || weapons_unlock)
 		if(activated(module.emag))
 			dat += text("<tr><td>[module.emag]</td><td><B>Activated</B></td></tr>")
 		else
@@ -1189,14 +1172,18 @@ var/list/robot_verbs_default = list(
 		if(module.type == /obj/item/weapon/robot_module/janitor)
 			var/turf/tile = loc
 			if(isturf(tile))
-				tile.clean_blood()
+				var/floor_only = TRUE
 				if(istype(tile, /turf/simulated))
 					var/turf/simulated/S = tile
 					S.dirt = 0
 				for(var/A in tile)
 					if(istype(A, /obj/effect))
 						if(is_cleanable(A))
-							qdel(A)
+							var/obj/effect/decal/cleanable/blood/B = A
+							if(istype(B) && B.off_floor)
+								floor_only = FALSE
+							else
+								qdel(A)
 					else if(istype(A, /obj/item))
 						var/obj/item/cleaned_item = A
 						cleaned_item.clean_blood()
@@ -1217,6 +1204,8 @@ var/list/robot_verbs_default = list(
 								cleaned_human.update_inv_shoes(0,0)
 							cleaned_human.clean_blood()
 							to_chat(cleaned_human, "<span class='danger'>[src] cleans your face!</span>")
+				if(floor_only)
+					tile.clean_blood()
 		return
 #undef BORG_CAMERA_BUFFER
 
@@ -1237,13 +1226,11 @@ var/list/robot_verbs_default = list(
 	canmove = 1
 	scrambledcodes = 1
 	//Disconnect it's camera so it's not so easily tracked.
-	if(src.camera)
-		qdel(src.camera)
-		src.camera = null
-		// I'm trying to get the Cyborg to not be listed in the camera list
-		// Instead of being listed as "deactivated". The downside is that I'm going
-		// to have to check if every camera is null or not before doing anything, to prevent runtime errors.
-		// I could change the network to null but I don't know what would happen, and it seems too hacky for me.
+	QDEL_NULL(src.camera)
+	// I'm trying to get the Cyborg to not be listed in the camera list
+	// Instead of being listed as "deactivated". The downside is that I'm going
+	// to have to check if every camera is null or not before doing anything, to prevent runtime errors.
+	// I could change the network to null but I don't know what would happen, and it seems too hacky for me.
 
 /mob/living/silicon/robot/proc/ResetSecurityCodes()
 	set category = "Robot Commands"
@@ -1357,11 +1344,13 @@ var/list/robot_verbs_default = list(
 	icon_state = "nano_bloodhound"
 	lawupdate = 0
 	scrambledcodes = 1
+	pdahide = 1
 	modtype = "Commando"
 	faction = list("nanotrasen")
 	designation = "Nanotrasen Combat"
 	req_access = list(access_cent_specops)
 	ionpulse = 1
+	magpulse = 1
 	var/searching_for_ckey = 0
 
 /mob/living/silicon/robot/deathsquad/New(loc)
@@ -1405,11 +1394,13 @@ var/list/robot_verbs_default = list(
 	icon_state = "syndie_bloodhound"
 	lawupdate = 0
 	scrambledcodes = 1
+	pdahide = 1
 	faction = list("syndicate")
 	designation = "Syndicate Assault"
 	modtype = "Syndicate"
 	req_access = list(access_syndicate)
 	ionpulse = 1
+	magpulse = 1
 	lawchannel = "State"
 	var/playstyle_string = "<span class='userdanger'>You are a Syndicate assault cyborg!</span><br>\
 							<b>You are armed with powerful offensive tools to aid you in your mission: help the operatives secure the nuclear authentication disk. \
@@ -1471,15 +1462,57 @@ var/list/robot_verbs_default = list(
 	radio.config(module.channels)
 	notify_ai(2)
 
-/mob/living/silicon/robot/peacekeeper
+/mob/living/silicon/robot/ert
+	designation = "ERT"
+	lawupdate = 0
+	scrambledcodes = 1
+	req_access = list(access_cent_specops)
+	ionpulse = 1
+
+	force_modules = list("Engineering", "Medical", "Security")
+	static_radio_channels = 1
+	allow_rename = FALSE
+	weapons_unlock = TRUE
+
+
+/mob/living/silicon/robot/ert/init()
+	laws = new /datum/ai_laws/ert_override
+	radio = new /obj/item/device/radio/borg/ert(src)
+	radio.recalculateChannels()
+	aiCamera = new/obj/item/device/camera/siliconcam/robot_camera(src)
+
+/mob/living/silicon/robot/ert/New(loc, cyborg_unlock)
+	..(loc)
+	cell.maxcharge = 25000
+	cell.charge = 25000
+	var/rnum = rand(1,1000)
+	var/borgname = "ERT [rnum]"
+	name = borgname
+	custom_name = borgname
+	real_name = name
+	mind = new
+	mind.current = src
+	mind.original = src
+	mind.assigned_role = "MODE"
+	mind.special_role = SPECIAL_ROLE_ERT
+	if(cyborg_unlock)
+		crisis = 1
+	if(!(mind in ticker.minds))
+		ticker.minds += mind
+	ticker.mode.ert += mind
+
+/mob/living/silicon/robot/ert/gamma
+	crisis = 1
+
+/mob/living/silicon/robot/nations
 	base_icon = "droidpeace"
 	icon_state = "droidpeace"
-	modtype = "Peacekeeper"
-	designation = "Peacekeeper"
+	modtype = "Nations"
+	designation = "Nations"
 
-/mob/living/silicon/robot/peacekeeper/init()
+/mob/living/silicon/robot/nations/init()
 	..()
-	module = new /obj/item/weapon/robot_module/peacekeeper(src)
+	module = new /obj/item/weapon/robot_module/nations(src)
 	//languages
 	module.add_languages(src)
 	//subsystems
@@ -1508,3 +1541,10 @@ var/list/robot_verbs_default = list(
 		borked_part.wrapped = new borked_part.external_type
 		borked_part.heal_damage(brute,burn)
 		borked_part.install()
+
+/mob/living/silicon/robot/proc/check_sprite(spritename)
+	. = FALSE
+
+	var/static/all_borg_icon_states = icon_states('icons/mob/custom_synthetic/custom-synthetic.dmi')
+	if(spritename in all_borg_icon_states)
+		. = TRUE

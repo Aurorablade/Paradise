@@ -37,7 +37,7 @@
 	force = 15
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	throwforce = 5
-	w_class = 1
+	w_class = WEIGHT_CLASS_TINY
 	throw_speed = 1
 	throw_range = 3
 	origin_tech = "combat=3"
@@ -57,7 +57,7 @@
 	var/organ = ((H.hand ? "l_":"r_") + "arm")
 	var/obj/item/organ/external/affecting = H.get_organ(organ)
 	if(affecting)
-		if(affecting.take_damage(0, force))
+		if(affecting.receive_damage(0, force))
 			H.UpdateDamageIcon()
 	to_chat(H, "<span class='userdanger'>The nettle burns your bare hand!</span>")
 	return 1

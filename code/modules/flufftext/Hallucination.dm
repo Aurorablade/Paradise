@@ -149,7 +149,7 @@ Gunshots/explosions/opening doors/less rare audio (done)
 			qdel(src)
 		Expand()
 		if((get_turf(target) in flood_turfs) && !target.internal)
-			target.hallucinate("fake_alert", "tox_in_air")
+			target.hallucinate("fake_alert", "too_much_tox")
 		next_expand = world.time + FAKE_FLOOD_EXPAND_TIME
 
 /obj/effect/hallucination/fake_flood/proc/Expand()
@@ -180,49 +180,6 @@ Gunshots/explosions/opening doors/less rare audio (done)
 	..()
 	name = "alien hunter ([rand(1, 1000)])"
 
-/obj/effect/hallucination/simple/xeno/throw_at(atom/target, range, speed) // TODO : Make diagonal trhow into proc/property
-	if(!target || !src || (flags & NODROP))
-		return 0
-
-	throwing = 1
-
-	var/dist_x = abs(target.x - x)
-	var/dist_y = abs(target.y - y)
-	var/dist_travelled = 0
-	var/dist_since_sleep = 0
-
-	var/tdist_x = dist_x;
-	var/tdist_y = dist_y;
-
-	if(dist_x <= dist_y)
-		tdist_x = dist_y;
-		tdist_y = dist_x;
-
-	var/error = tdist_x/2 - tdist_y
-	while(target && (((((dist_x > dist_y) && ((x < target.x) || (x > target.x))) || ((dist_x <= dist_y) && ((y < target.y) || (y > target.y))) || (x > target.x)) && dist_travelled < range) || !has_gravity(src)))
-		if(!throwing)
-			break
-		if(!istype(loc, /turf))
-			break
-
-		var/atom/step = get_step(src, get_dir(src, target))
-		if(!step)
-			break
-		Move(step, get_dir(src, step))
-		hit_check()
-		error += (error < 0) ? tdist_x : -tdist_y;
-		dist_travelled++
-		dist_since_sleep++
-		if(dist_since_sleep >= speed)
-			dist_since_sleep = 0
-			sleep(1)
-
-
-	throwing = 0
-	throw_impact(get_turf(src))
-
-	return 1
-
 /obj/effect/hallucination/simple/xeno/throw_impact(A)
 	update_icon("alienh_pounce")
 	if(A == target)
@@ -247,12 +204,12 @@ Gunshots/explosions/opening doors/less rare audio (done)
 	if(!xeno)
 		return
 	xeno.update_icon("alienh_leap",'icons/mob/alienleap.dmi',-32,-32)
-	xeno.throw_at(target,7,1)
+	xeno.throw_at(target,7,1, spin = 0, diagonals_first = 1)
 	sleep(10)
 	if(!xeno)
 		return
 	xeno.update_icon("alienh_leap",'icons/mob/alienleap.dmi',-32,-32)
-	xeno.throw_at(pump,7,1)
+	xeno.throw_at(pump,7,1, spin = 0, diagonals_first = 1)
 	sleep(10)
 	if(!xeno)
 		return
@@ -933,12 +890,12 @@ var/list/non_fakeattack_weapons = list(/obj/item/weapon/gun/projectile, /obj/ite
 			sleep(rand(100,250))
 			hal_screwyhud = SCREWYHUD_NONE
 		if("fake_alert")
-			var/alert_type = pick("oxy","not_enough_tox","not_enough_co2","too_much_oxy","too_much_co2","tox_in_air","newlaw","nutrition","charge","weightless","fire","locked","hacked","temp","pressure")
+			var/alert_type = pick("not_enough_oxy","not_enough_tox","not_enough_co2","too_much_oxy","too_much_co2","too_much_tox","newlaw","nutrition","charge","weightless","fire","locked","hacked","temp","pressure")
 			if(specific)
 				alert_type = specific
 			switch(alert_type)
-				if("oxy")
-					throw_alert("oxy", /obj/screen/alert/oxy, override = TRUE)
+				if("not_enough_oxy")
+					throw_alert("not_enough_oxy", /obj/screen/alert/not_enough_oxy, override = TRUE)
 				if("not_enough_tox")
 					throw_alert("not_enough_tox", /obj/screen/alert/not_enough_tox, override = TRUE)
 				if("not_enough_co2")
@@ -947,8 +904,8 @@ var/list/non_fakeattack_weapons = list(/obj/item/weapon/gun/projectile, /obj/ite
 					throw_alert("too_much_oxy", /obj/screen/alert/too_much_oxy, override = TRUE)
 				if("too_much_co2")
 					throw_alert("too_much_co2", /obj/screen/alert/too_much_co2, override = TRUE)
-				if("tox_in_air")
-					throw_alert("tox_in_air", /obj/screen/alert/tox_in_air, override = TRUE)
+				if("too_much_tox")
+					throw_alert("too_much_tox", /obj/screen/alert/too_much_tox, override = TRUE)
 				if("nutrition")
 					if(prob(50))
 						throw_alert("nutrition", /obj/screen/alert/fat, override = TRUE)

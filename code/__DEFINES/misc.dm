@@ -162,20 +162,6 @@
 #define MIN_SUPPLIED_LAW_NUMBER 15
 #define MAX_SUPPLIED_LAW_NUMBER 50
 
-//Material defines
-#define MAT_METAL			"$metal"
-#define MAT_GLASS			"$glass"
-#define MAT_SILVER			"$silver"
-#define MAT_GOLD			"$gold"
-#define MAT_DIAMOND			"$diamond"
-#define MAT_URANIUM			"$uranium"
-#define MAT_PLASMA			"$plasma"
-#define MAT_BANANIUM		"$bananium"
-#define MAT_TRANQUILLITE	"$tranquillite"
-#define MAT_BIOMASS			"$biomass"
-
-#define MAX_STACK_SIZE 50
-
 //check_target_facings() return defines
 #define FACING_FAILED											0
 #define FACING_SAME_DIR											1
@@ -254,6 +240,9 @@
 #define REGION_COMMAND		7
 #define REGION_CENTCOMM		8
 
+//Just space
+#define SPACE_ICON_STATE	"[((x + y) ^ ~(x * y) + z) % 25]"
+
 //used for maploader
 #define MAP_MINX 1
 #define MAP_MINY 2
@@ -274,6 +263,20 @@
 #define MATRIX_TAJ_CBLIND list(0.4,0.2,0.4,\
                                0.4,0.6,0.0,\
                                0.2,0.2,0.6)
+
+#define LIST_REPLACE_RENAME list("rebeccapurple" = "dark purple", "darkslategrey" = "dark grey", "darkolivegreen" = "dark green", "darkslateblue" = "dark blue",\
+								 "darkkhaki" = "khaki", "darkseagreen" = "light green", "midnightblue" = "blue", "lightgrey" = "light grey", "darkgrey" = "dark grey",\
+								 "steelblue" = "blue", "goldenrod" = "gold")
+
+#define LIST_GREYSCALE_REPLACE list("red" = "lightgrey", "blue" = "grey", "green" = "grey", "orange" = "lightgrey", "brown" = "grey",\
+									"gold" = "lightgrey", "cyan" = "lightgrey", "navy" = "grey", "purple" = "grey", "pink"= "lightgrey")
+
+#define LIST_VULP_REPLACE list("pink" = "beige", "orange" = "goldenrod", "gold" = "goldenrod", "red" = "darkolivegreen", "brown" = "darkolivegreen",\
+									 "green" = "darkslategrey", "cyan" = "steelblue", "purple" = "darkslategrey", "navy" = "midnightblue")
+
+#define LIST_TAJ_REPLACE list("red" = "rebeccapurple", "brown" = "rebeccapurple", "purple" = "darkslateblue", "blue" = "darkslateblue",\
+									 "green" = "darkolivegreen", "orange" = "darkkhaki", "gold" = "darkkhaki", "cyan" = "darkseagreen", \
+									 "navy" = "midnightblue", "pink" = "lightgrey")
 
 
 //Gun trigger guards
@@ -296,10 +299,6 @@
 #define FIRE_PROOF -1
 #define FLAMMABLE 0
 #define ON_FIRE 1
-
-// Sound
-#define SOUND_MINIMUM_PRESSURE 10
-#define FALLOFF_SOUNDS 0.5
 
 // Bluespace shelter deploy checks
 #define SHELTER_DEPLOY_ALLOWED "allowed"
@@ -330,3 +329,23 @@
 
 // The number of station goals generated each round.
 #define STATION_GOAL_BUDGET 1
+
+#define FIRST_DIAG_STEP 1
+#define SECOND_DIAG_STEP 2
+
+#define ARBITRARY_VIEWRANGE_NOHUD 2
+#define SECOND_DIAG_STEP 2
+
+//Bloody shoes/footprints
+#define MAX_SHOE_BLOODINESS			100
+#define BLOODY_FOOTPRINT_BASE_ALPHA	150
+#define BLOOD_GAIN_PER_STEP			100
+#define BLOOD_LOSS_PER_STEP			5
+
+//Bloody shoe blood states
+#define BLOOD_STATE_HUMAN			"blood"
+#define BLOOD_STATE_XENO			"xeno"
+#define BLOOD_STATE_NOT_BLOODY		"no blood whatsoever"
+
+// The SQL version required by this version of the code
+#define SQL_VERSION 2

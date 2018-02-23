@@ -19,7 +19,7 @@
 	var/ore_pickup_rate = 15
 	var/sheet_per_ore = 1
 	var/point_upgrade = 1
-	var/list/ore_values = list(("sand" = 1), ("iron" = 1), ("plasma" = 15), ("silver" = 16), ("gold" = 18), ("uranium" = 30), ("diamond" = 50), ("bluespace crystal" = 50), ("bananium" = 60), ("tranquillite" = 60))
+	var/list/ore_values = list(("sand" = 1), ("iron" = 1), ("plasma" = 15), ("silver" = 16), ("gold" = 18), ("titanium" = 30), ("uranium" = 30), ("diamond" = 50), ("bluespace crystal" = 50), ("bananium" = 60), ("tranquillite" = 60))
 	var/list/supply_consoles = list("Science", "Robotics", "Research Director's Desk", "Mechanic", "Engineering" = list("metal", "glass", "plasma"), "Chief Engineer's Desk" = list("metal", "glass", "plasma"), "Atmospherics" = list("metal", "glass", "plasma"), "Bar" = list("uranium", "plasma"), "Virology" = list("plasma", "uranium", "gold"))
 	speed_process = 1
 
@@ -175,17 +175,28 @@
 				dat += "<br>"		//just looks nicer
 			dat += text("[capitalize(s.name)]: [s.amount] <A href='?src=[UID()];release=[s.type]'>Release</A><br>")
 
-	if((/obj/item/stack/sheet/metal in stack_list) && (/obj/item/stack/sheet/mineral/plasma in stack_list))
-		var/obj/item/stack/sheet/metalstack = stack_list[/obj/item/stack/sheet/metal]
-		var/obj/item/stack/sheet/plasmastack = stack_list[/obj/item/stack/sheet/mineral/plasma]
-		if(min(metalstack.amount, plasmastack.amount))
-			dat += text("Plasteel Alloy (Metal + Plasma): <A href='?src=[UID()];plasteel=1'>Smelt</A><BR>")
-	if((/obj/item/stack/sheet/glass in stack_list) && (/obj/item/stack/sheet/mineral/plasma in stack_list))
-		var/obj/item/stack/sheet/glassstack = stack_list[/obj/item/stack/sheet/glass]
-		var/obj/item/stack/sheet/plasmastack = stack_list[/obj/item/stack/sheet/mineral/plasma]
-		if(min(glassstack.amount, plasmastack.amount))
-			dat += "Plasma Glass (Glass + Plasma): <A href='?src=[UID()];plasglass=1'>Smelt</A><BR>"
+	var/obj/item/stack/sheet/metalstack
+	if(/obj/item/stack/sheet/metal in stack_list)
+		metalstack = stack_list[/obj/item/stack/sheet/metal]
 
+	var/obj/item/stack/sheet/glass/glassstack
+	if(/obj/item/stack/sheet/glass in stack_list)
+		glassstack = stack_list[/obj/item/stack/sheet/glass]
+
+	var/obj/item/stack/sheet/plasmastack
+	if((/obj/item/stack/sheet/mineral/plasma in stack_list))
+		plasmastack = stack_list[/obj/item/stack/sheet/mineral/plasma]
+
+	var/obj/item/stack/sheet/mineral/titaniumstack
+	if((/obj/item/stack/sheet/mineral/titanium in stack_list))
+		titaniumstack = stack_list[/obj/item/stack/sheet/mineral/titanium]
+
+	if(metalstack && plasmastack && min(metalstack.amount, plasmastack.amount))
+		dat += text("Plasteel Alloy (Metal + Plasma): <A href='?src=[UID()];alloytype1=/obj/item/stack/sheet/metal;alloytype2=/obj/item/stack/sheet/mineral/plasma;alloytypeout=/obj/item/stack/sheet/plasteel'>Smelt</A><BR>")
+	if(titaniumstack && plasmastack && min(titaniumstack.amount, plasmastack.amount))
+		dat += text("Plastitanium Alloy (Titanium + Plasma): <A href='?src=[UID()];alloytype1=/obj/item/stack/sheet/mineral/titanium;alloytype2=/obj/item/stack/sheet/mineral/plasma;alloytypeout=/obj/item/stack/sheet/mineral/plastitanium'>Smelt</A><BR>")
+	if(glassstack && plasmastack && min(glassstack.amount, plasmastack.amount))
+		dat += text("Plasma Glass (Glass + Plasma): <A href='?src=[UID()];alloytype1=/obj/item/stack/sheet/glass;alloytype2=/obj/item/stack/sheet/mineral/plasma;alloytypeout=/obj/item/stack/sheet/plasmaglass'>Smelt</A><BR>")
 	dat += text("<br><div class='statusDisplay'><b>Mineral Value List:</b><BR>[get_ore_values()]</div>")
 
 	var/datum/browser/popup = new(user, "console_stacking_machine", "Ore Redemption Machine", 400, 500)
@@ -242,43 +253,30 @@
 		else
 			to_chat(usr, "<span class='warning'>Required access not found.</span>")
 
-	if(href_list["plasteel"])
+	if(href_list["alloytype1"] && href_list["alloytype2"] && href_list["alloytypeout"])
+		var/alloytype1 = text2path(href_list["alloytype1"])
+		var/alloytype2 = text2path(href_list["alloytype2"])
+		var/alloytypeout = text2path(href_list["alloytypeout"])
 		if(check_access(inserted_id) || allowed(usr))
-			if(!(/obj/item/stack/sheet/metal in stack_list)) return
-			if(!(/obj/item/stack/sheet/mineral/plasma in stack_list)) return
-			var/obj/item/stack/sheet/metalstack = stack_list[/obj/item/stack/sheet/metal]
-			var/obj/item/stack/sheet/plasmastack = stack_list[/obj/item/stack/sheet/mineral/plasma]
-
+			if(!(alloytype1 in stack_list))
+				return
+			if(!(alloytype2 in stack_list))
+				return
+			var/obj/item/stack/sheet/stack1 = stack_list[alloytype1]
+			var/obj/item/stack/sheet/stack2 = stack_list[alloytype2]
 			var/desired = input("How much?", "How much would you like to smelt?", 1) as num
-			var/obj/item/stack/sheet/plasteel/plasteelout = new
-			plasteelout.amount = round(min(desired,50,metalstack.amount,plasmastack.amount))
-			if(plasteelout.amount >= 1)
-				metalstack.amount -= plasteelout.amount
-				plasmastack.amount -= plasteelout.amount
-				unload_mineral(plasteelout)
-		else
-			to_chat(usr, "<span class='warning'>Required access not found.</span>")
-
-	if(href_list["plasglass"])
-		if(check_access(inserted_id) || allowed(usr))
-			if(!(/obj/item/stack/sheet/glass in stack_list)) return
-			if(!(/obj/item/stack/sheet/mineral/plasma in stack_list)) return
-			var/obj/item/stack/sheet/glassstack = stack_list[/obj/item/stack/sheet/glass]
-			var/obj/item/stack/sheet/plasmastack = stack_list[/obj/item/stack/sheet/mineral/plasma]
-
-			var/desired = input("How much?", "How much would you like to smelt?", 1) as num
-			var/obj/item/stack/sheet/plasmaglass/plasglassout = new
-			plasglassout.amount = round(min(desired, 50, glassstack.amount, plasmastack.amount))
-			if(plasglassout.amount >= 1)
-				glassstack.amount -= plasglassout.amount
-				plasmastack.amount -= plasglassout.amount
-				unload_mineral(plasglassout)
+			var/obj/item/stack/sheet/alloyout = new alloytypeout
+			alloyout.amount = round(min(desired,50,stack1.amount,stack2.amount))
+			if(alloyout.amount >= 1)
+				stack1.amount -= alloyout.amount
+				stack2.amount -= alloyout.amount
+				unload_mineral(alloyout)
 		else
 			to_chat(usr, "<span class='warning'>Required access not found.</span>")
 	updateUsrDialog()
 
 /obj/machinery/mineral/ore_redemption/ex_act(severity, target)
-	var/datum/effect/system/spark_spread/s = new /datum/effect/system/spark_spread
+	var/datum/effect_system/spark_spread/s = new /datum/effect_system/spark_spread
 	s.set_up(5, 1, src)
 	s.start()
 	if(severity == 1)
@@ -506,7 +504,7 @@
 	qdel(voucher)
 
 /obj/machinery/mineral/equipment_vendor/ex_act(severity, target)
-	var/datum/effect/system/spark_spread/s = new /datum/effect/system/spark_spread
+	var/datum/effect_system/spark_spread/s = new /datum/effect_system/spark_spread
 	s.set_up(5, 1, src)
 	s.start()
 	if(prob(50 / severity) && severity < 3)
@@ -521,7 +519,7 @@
 	desc = "A token to redeem a piece of equipment. Use it on a mining equipment vendor."
 	icon = 'icons/obj/items.dmi'
 	icon_state = "mining_voucher"
-	w_class = 1
+	w_class = WEIGHT_CLASS_TINY
 
 /**********************Mining Point Card**********************/
 
@@ -555,14 +553,14 @@
 	icon_state = "Jaunter"
 	item_state = "electronic"
 	throwforce = 0
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	throw_speed = 3
 	throw_range = 5
 	origin_tech = "bluespace=2"
 
 /obj/item/device/wormhole_jaunter/attack_self(mob/user)
 	var/turf/device_turf = get_turf(user)
-	if(!device_turf||is_teleport_allowed(device_turf.z))
+	if(!device_turf || !is_teleport_allowed(device_turf.z))
 		to_chat(user, "<span class='notice'>You're having difficulties getting the [src.name] to work.</span>")
 		return
 	else
@@ -614,8 +612,9 @@
 	icon = 'icons/obj/items.dmi'
 	icon_state = "resonator"
 	item_state = "resonator"
+	origin_tech = "magnets=3;engineering=3"
 	desc = "A handheld device that creates small fields of energy that resonate until they detonate, crushing rock. It can also be activated without a target to create a field at the user's location, to act as a delayed time trap. It's more effective in a vaccuum."
-	w_class = 3
+	w_class = WEIGHT_CLASS_NORMAL
 	force = 8
 	throwforce = 10
 	var/cooldown = 0
@@ -627,7 +626,7 @@
 	name = "upgraded resonator"
 	desc = "An upgraded version of the resonator that can produce more fields at once."
 	icon_state = "resonator_u"
-	origin_tech = "magnets=3;combat=3"
+	origin_tech = "materials=4;powerstorage=3;engineering=3;magnets=3"
 	fieldlimit = 5
 
 /obj/item/weapon/resonator/proc/CreateResonance(var/target, var/creator)
@@ -711,7 +710,7 @@
 /obj/item/weapon/mining_drone_cube
 	name = "mining drone cube"
 	desc = "Compressed mining drone, ready for deployment. Just press the button to activate!"
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	icon = 'icons/obj/aibots.dmi'
 	icon_state = "minedronecube"
 	item_state = "electronic"
@@ -728,7 +727,7 @@
 	name = "Drone Kit"
 	desc = "A boxed kit that includes one mining drone cube and a welding tool with an increased capacity."
 	icon_state = "implant"
-	max_w_class = 3
+	max_w_class = WEIGHT_CLASS_NORMAL
 	storage_slots = 2
 	can_hold = list(/obj/item/weapon/mining_drone_cube, /obj/item/weapon/weldingtool/hugetank)
 
@@ -745,8 +744,9 @@
 	icon = 'icons/obj/hypo.dmi'
 	icon_state = "lazarus_hypo"
 	item_state = "hypo"
+	origin_tech = "biotech=4;magnets=6"
 	throwforce = 0
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	throw_speed = 3
 	throw_range = 5
 	var/loaded = 1
@@ -806,7 +806,7 @@
 	name = "manual mining scanner"
 	icon_state = "mining1"
 	item_state = "analyzer"
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	var/cooldown = 0
@@ -838,7 +838,7 @@
 	name = "advanced automatic mining scanner"
 	icon_state = "mining0"
 	item_state = "analyzer"
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	var/cooldown = 35
@@ -904,10 +904,10 @@
 			minerals += M
 	if(minerals.len)
 		for(var/turf/simulated/mineral/M in minerals)
-			var/obj/effect/overlay/temp/mining_overlay/C = new/obj/effect/overlay/temp/mining_overlay(M)
+			var/obj/effect/temp_visual/mining_overlay/C = new/obj/effect/temp_visual/mining_overlay(M)
 			C.icon_state = M.scan_state
 
-/obj/effect/overlay/temp/mining_overlay
+/obj/effect/temp_visual/mining_overlay
 	layer = 18
 	icon = 'icons/turf/mining.dmi'
 	anchored = 1
@@ -928,10 +928,11 @@
 	name = "mining jetpack"
 	icon_state = "jetpack-mining"
 	item_state = "jetpack-mining"
+	origin_tech = "materials=4;magnets=4;engineering=5"
 	desc = "A tank of compressed carbon dioxide for miners to use as propulsion in local space. The compact size allows for easy storage at the cost of capacity."
 	volume = 40
 	throw_range = 7
-	w_class = 3 //same as syndie harness
+	w_class = WEIGHT_CLASS_NORMAL //same as syndie harness
 
 /*********************Hivelord stabilizer****************/
 
@@ -940,8 +941,8 @@
 	icon = 'icons/obj/chemical.dmi'
 	icon_state = "bottle19"
 	desc = "Inject a hivelord core with this stabilizer to preserve its healing powers indefinitely."
-	w_class = 1
-	origin_tech = "biotech=1"
+	w_class = WEIGHT_CLASS_TINY
+	origin_tech = "biotech=3"
 
 /obj/item/weapon/hivelordstabilizer/afterattack(obj/item/organ/internal/M, mob/user)
 	var/obj/item/organ/internal/hivelord_core/C = M
@@ -963,7 +964,7 @@
 	 \n<span class='info'>Mark a mob with the destabilizing force, then hit them in melee to activate it for extra damage. Extra damage if backstabbed in this fashion. \
 	 This weapon is only particularly effective against large creatures.</span>"
 	force = 20 //As much as a bone spear, but this is significantly more annoying to carry around due to requiring the use of both hands at all times
-	w_class = 4
+	w_class = WEIGHT_CLASS_BULKY
 	slot_flags = SLOT_BACK
 	force_unwielded = 20 //It's never not wielded so these are the same
 	force_wielded = 20
@@ -975,7 +976,6 @@
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	attack_verb = list("smashes", "crushes", "cleaves", "chops", "pulps")
 	sharp = 1
-	edge = 1
 	var/charged = 1
 	var/charge_time = 16
 	var/atom/mark = null
@@ -1007,7 +1007,7 @@
 		var/target_turf = get_turf(target)
 		if(istype(target_turf, /turf/simulated/mineral))
 			var/turf/simulated/mineral/M = target_turf
-			new /obj/effect/overlay/temp/kinetic_blast(M)
+			new /obj/effect/temp_visual/kinetic_blast(M)
 			M.gets_drilled(firer)
 	..()
 
@@ -1033,12 +1033,11 @@
 		return
 	if(proximity_flag && target == mark && isliving(target))
 		var/mob/living/L = target
-		new /obj/effect/overlay/temp/kinetic_blast(get_turf(L))
+		new /obj/effect/temp_visual/kinetic_blast(get_turf(L))
 		mark = 0
 		if(L.mob_size >= MOB_SIZE_LARGE)
 			L.underlays -= marked_image
-			qdel(marked_image)
-			marked_image = null
+			QDEL_NULL(marked_image)
 			var/backstab = check_target_facings(user, L)
 			var/def_check = L.getarmor(type = "bomb")
 			if(backstab == FACING_INIT_FACING_TARGET_TARGET_FACING_PERPENDICULAR || backstab == FACING_SAME_DIR)

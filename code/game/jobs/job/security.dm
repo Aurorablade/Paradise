@@ -6,6 +6,7 @@
 	spawn_positions = 1
 	is_security = 1
 	supervisors = "the captain"
+	department_head = list("Captain")
 	selection_color = "#ffdddd"
 	req_admin_notify = 1
 	access = list(access_security, access_sec_doors, access_brig, access_armory, access_court,
@@ -19,6 +20,7 @@
 	minimal_player_age = 21
 	exp_requirements = 600
 	exp_type = EXP_TYPE_CREW
+	disabilities_allowed = 0
 	outfit = /datum/outfit/job/hos
 
 /datum/outfit/job/hos
@@ -56,6 +58,7 @@
 	spawn_positions = 1
 	is_security = 1
 	supervisors = "the head of security"
+	department_head = list("Head of Security")
 	selection_color = "#ffeeee"
 	access = list(access_security, access_sec_doors, access_brig, access_armory, access_court, access_maint_tunnels, access_morgue, access_weapons)
 	minimal_access = list(access_security, access_sec_doors, access_brig, access_armory, access_court, access_maint_tunnels, access_weapons)
@@ -99,6 +102,7 @@
 	spawn_positions = 1
 	is_security = 1
 	supervisors = "the head of security"
+	department_head = list("Head of Security")
 	selection_color = "#ffeeee"
 	alt_titles = list("Forensic Technician")
 	access = list(access_security, access_sec_doors, access_forensics_lockers, access_morgue, access_maint_tunnels, access_court, access_weapons)
@@ -157,6 +161,7 @@
 	spawn_positions = 7
 	is_security = 1
 	supervisors = "the head of security"
+	department_head = list("Head of Security")
 	selection_color = "#ffeeee"
 	access = list(access_security, access_sec_doors, access_brig, access_court, access_maint_tunnels, access_morgue, access_weapons)
 	minimal_access = list(access_security, access_sec_doors, access_brig, access_court, access_maint_tunnels, access_weapons)
@@ -168,7 +173,6 @@
 /datum/outfit/job/officer
 	name = "Security Officer"
 	jobtype = /datum/job/officer
-
 	uniform = /obj/item/clothing/under/rank/security
 	suit = /obj/item/clothing/suit/armor/vest/security
 	gloves = /obj/item/clothing/gloves/color/black
@@ -182,9 +186,7 @@
 	backpack_contents = list(
 		/obj/item/weapon/restraints/handcuffs = 1
 	)
-
 	implants = list(/obj/item/weapon/implant/mindshield)
-
 	backpack = /obj/item/weapon/storage/backpack/security
 	satchel = /obj/item/weapon/storage/backpack/satchel_sec
 	dufflebag = /obj/item/weapon/storage/backpack/duffel/security
@@ -199,6 +201,7 @@
 	spawn_positions = 1
 	is_security = 1
 	supervisors = "the head of security"
+	department_head = list("Head of Security")
 	selection_color = "#ffeeee"
 	access = list(access_medical, access_morgue, access_surgery, access_chemistry, access_virology, access_genetics)
 	minimal_access = list(access_medical, access_morgue, access_surgery, access_security, access_sec_doors, access_brig, access_court, access_maint_tunnels)
@@ -207,7 +210,6 @@
 /datum/outfit/job/brigdoc
 	name = "Brig Physician"
 	jobtype = /datum/job/brigdoc
-
 	uniform = /obj/item/clothing/under/rank/security/brigphys
 	suit = /obj/item/clothing/suit/storage/fr_jacket
 	shoes = /obj/item/clothing/shoes/white
@@ -217,13 +219,10 @@
 	suit_store = /obj/item/device/flashlight/pen
 	l_hand = /obj/item/weapon/storage/firstaid/adv
 	pda = /obj/item/device/pda/medical
-
 	implants = list(/obj/item/weapon/implant/mindshield)
-
 	backpack = /obj/item/weapon/storage/backpack/medic
 	satchel = /obj/item/weapon/storage/backpack/satchel_med
 	dufflebag = /obj/item/weapon/storage/backpack/duffel/medical
-
 
 
 /datum/job/pilot
@@ -234,6 +233,7 @@
 	spawn_positions = 1
 	is_security = 1
 	supervisors = "the head of security"
+	department_head = list("Head of Security")
 	selection_color = "#ffeeee"
 	access = list(access_security, access_sec_doors, access_brig, access_court, access_maint_tunnels, access_morgue, access_weapons, access_pilot, access_external_airlocks)
 	minimal_access = list(access_security, access_sec_doors, access_brig, access_court, access_maint_tunnels, access_weapons, access_pilot, access_external_airlocks)
@@ -243,7 +243,6 @@
 /datum/outfit/job/pilot
 	name = "Security Pod Pilot"
 	jobtype = /datum/job/pilot
-
 	uniform = /obj/item/clothing/under/rank/security/pod_pilot
 	suit = /obj/item/clothing/suit/jacket/pilot
 	gloves = /obj/item/clothing/gloves/color/black
@@ -256,9 +255,7 @@
 	backpack_contents = list(
 		/obj/item/weapon/restraints/handcuffs = 1
 	)
-
 	implants = list(/obj/item/weapon/implant/mindshield)
-
 	backpack = /obj/item/weapon/storage/backpack/security
 	satchel = /obj/item/weapon/storage/backpack/satchel_sec
 	dufflebag = /obj/item/weapon/storage/backpack/duffel/security

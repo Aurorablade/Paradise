@@ -4,6 +4,7 @@
 
 /datum/feed_message
 	var/author = ""
+	var/title = ""
 	var/body = ""
 	var/message_type = "Story"
 	var/backup_body = ""
@@ -42,8 +43,10 @@
 	is_admin_channel = 0
 	total_view_count = 0
 
-/datum/feed_channel/proc/announce_news()
-	return "Breaking news from [channel_name]!"
+/datum/feed_channel/proc/announce_news(title="")
+	if(title)
+		return "Breaking news from [channel_name]: [title]"
+	return "Breaking news from [channel_name]"
 
 /datum/feed_channel/station/announce_news()
 	return "New Station Announcement Available"
@@ -68,6 +71,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 #define NEWSCASTER_D_NOTICE_FC	9	// D-Notice feed channel
 #define NEWSCASTER_W_ISSUE_H	10	// Wanted Issue handler
 #define NEWSCASTER_W_ISSUE		11	// STATIONWIDE WANTED ISSUE
+#define NEWSCASTER_JOBS			12	// Available jobs
 
 /obj/machinery/newscaster
 	name = "newscaster"
@@ -86,6 +90,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 		// 1 = there has
 	var/scanned_user = "Unknown" //Will contain the name of the person who currently uses the newscaster
 	var/msg = "" //Feed message
+	var/msg_title = "" // Feed message title
 	var/obj/item/weapon/photo/photo = null
 	var/channel_name = "" //the feed channel which will be receiving the feed, or being created
 	var/c_locked = 0 //Will our new channel be locked to public submissions?
@@ -94,6 +99,21 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 	var/silence = 0
 	var/temp = null
 	var/temp_back_screen = NEWSCASTER_MAIN
+	var/list/jobblacklist = list(
+		/datum/job/ai,
+		/datum/job/cyborg,
+		/datum/job/captain,
+		/datum/job/judge,
+		/datum/job/blueshield,
+		/datum/job/nanotrasenrep,
+		/datum/job/pilot,
+		/datum/job/brigdoc,
+		/datum/job/mechanic,
+		/datum/job/barber,
+		/datum/job/chaplain,
+		/datum/job/ntnavyofficer,
+		/datum/job/ntspecops,
+		/datum/job/civilian)
 
 	var/static/REDACTED = "<b class='bad'>\[REDACTED\]</b>"
 	light_range = 0
@@ -197,6 +217,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 		if(3)
 			data["scanned_user"] = scanned_user
 			data["channel_name"] = channel_name
+			data["title"] = msg_title
 			data["msg"] = msg
 			data["photo"] = photo ? 1 : 0
 		if(4)
@@ -220,7 +241,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 			var/list/messages = list()
 			data["messages"] = messages
 			for(var/datum/feed_message/M in viewing_channel.messages)
-				messages[++messages.len] = list("body" = M.body, "img" = M.img ? icon2base64(M.img) : null, "message_type" = M.message_type, "author" = M.author, "view_count" = M.view_count)
+				messages[++messages.len] = list("title" = M.title, "body" = M.body, "img" = M.img ? icon2base64(M.img) : null, "message_type" = M.message_type, "author" = M.author, "view_count" = M.view_count)
 		if(8, 9)
 			data["channel_name"] = viewing_channel.channel_name
 			data["ref"] = "\ref[viewing_channel]"
@@ -231,7 +252,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 			var/list/messages = list()
 			data["messages"] = messages
 			for(var/datum/feed_message/M in viewing_channel.messages)
-				messages[++messages.len] = list("body" = M.body, "body_redacted" = (M.body == REDACTED ? 1 : 0) , "message_type" = M.message_type, "author" = M.author, "author_redacted" = (M.author == REDACTED ? 1 : 0), "ref" = "\ref[M]", "view_count" = M.view_count)
+				messages[++messages.len] = list("title" = M.title, "body" = M.body, "body_redacted" = (M.body == REDACTED ? 1 : 0) , "message_type" = M.message_type, "author" = M.author, "author_redacted" = (M.author == REDACTED ? 1 : 0), "ref" = "\ref[M]", "view_count" = M.view_count)
 		if(10)
 			var/wanted_already = 0
 			var/end_param = 1
@@ -252,6 +273,14 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 			data["criminal"] = news_network.wanted_issue.author
 			data["description"] = news_network.wanted_issue.body
 			data["photo"] = news_network.wanted_issue.img ? icon2base64(news_network.wanted_issue.img) : 0
+		if(12)
+			var/list/jobs = list()
+			data["jobs"] = jobs
+			for(var/datum/job/job in job_master.occupations)
+				if(job_blacklisted(job))
+					continue
+				if(job.is_position_available())
+					jobs[++jobs.len] = list("title" = job.title)
 	return data
 
 /obj/machinery/newscaster/Topic(href, href_list)
@@ -259,9 +288,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 		return 1
 
 	if(href_list["set_channel_name"])
-		channel_name = sanitizeSQL(strip_html_simple(input(usr, "Provide a Feed Channel Name", "Network Channel Handler", "")))
-		while(findtext(channel_name," ") == 1)
-			channel_name = copytext(channel_name, 2, lentext(channel_name) + 1)
+		channel_name = trim(sanitize(strip_html_simple(input(usr, "Provide a Feed Channel Name", "Network Channel Handler", ""))))
 
 	else if(href_list["set_channel_lock"])
 		c_locked = !c_locked
@@ -309,10 +336,12 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 				available_channels += F.channel_name
 		channel_name = strip_html_simple(input(usr, "Choose receiving Feed Channel", "Network Channel Handler") in available_channels)
 
+	else if(href_list["set_message_title"])
+		msg_title = trim(strip_html(input(usr, "Write a title for your feed story", "Network Channel Handler", "")))
+		msg_title = dd_limittext(msg_title, 256)
+
 	else if(href_list["set_new_message"])
-		msg = strip_html(input(usr, "Write your feed story", "Network Channel Handler", ""))
-		while(findtext(msg, " ") == 1)
-			msg = copytext(msg, 2, lentext(msg) + 1)
+		msg = trim(strip_html(input(usr, "Write your feed story", "Network Channel Handler", "")))
 
 	else if(href_list["set_attachment"])
 		AttachPhoto(usr)
@@ -331,6 +360,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 		else
 			var/datum/feed_message/newMsg = new /datum/feed_message
 			newMsg.author = scanned_user
+			newMsg.title = msg_title
 			newMsg.body = msg
 			if(photo)
 				newMsg.img = photo.img
@@ -339,7 +369,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 			for(var/datum/feed_channel/FC in news_network.network_channels)
 				if(FC.channel_name == channel_name)
 					FC.messages += newMsg                  //Adding message to the network's appropriate feed_channel
-					announcement = FC.announce_news()
+					announcement = FC.announce_news(msg_title)
 					break
 			temp = "<span class='good'>Feed story successfully submitted to [channel_name].</span>"
 			temp_back_screen = NEWSCASTER_MAIN
@@ -384,14 +414,10 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 		screen = NEWSCASTER_W_ISSUE_H
 
 	else if(href_list["set_wanted_name"])
-		channel_name = strip_html(input(usr, "Provide the name of the wanted person", "Network Security Handler", ""))
-		while(findtext(channel_name, " ") == 1)
-			channel_name = copytext(channel_name, 2, lentext(channel_name) + 1)
+		channel_name = trim(strip_html(input(usr, "Provide the name of the wanted person", "Network Security Handler", "")))
 
 	else if(href_list["set_wanted_desc"])
-		msg = strip_html(input(usr, "Provide the a description of the wanted person and any other details you deem important", "Network Security Handler", ""))
-		while(findtext(msg, " ") == 1)
-			msg = copytext(msg, 2, lentext(msg) + 1)
+		msg = trim(strip_html(input(usr, "Provide the a description of the wanted person and any other details you deem important", "Network Security Handler", "")))
 
 	else if(href_list["submit_wanted"])
 		var/input_param = text2num(href_list["submit_wanted"])
@@ -510,6 +536,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 		if(screen == NEWSCASTER_MAIN)
 			scanned_user = "Unknown"
 			msg = ""
+			msg_title = ""
 			c_locked = 0
 			channel_name = ""
 			viewing_channel = null
@@ -534,6 +561,9 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 	else if(href_list["refresh"])
 		if(can_scan(usr))
 			scan_user(usr) //Newscaster scans you
+
+	else if(href_list["jobs"])
+		screen = NEWSCASTER_JOBS
 
 	nanomanager.update_uis(src)
 	return 1
@@ -607,7 +637,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 	desc = "An issue of The Griffon, the newspaper circulating aboard Nanotrasen Space Stations."
 	icon = 'icons/obj/bureaucracy.dmi'
 	icon_state = "newspaper"
-	w_class = 2	//Let's make it fit in trashbags!
+	w_class = WEIGHT_CLASS_SMALL	//Let's make it fit in trashbags!
 	attack_verb = list("bapped")
 	var/screen = 0
 	var/pages = 0
@@ -660,7 +690,8 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 						var/i = 0
 						for(var/datum/feed_message/MESSAGE in C.messages)
 							i++
-							dat+="-[MESSAGE.body] <BR>"
+							dat+="<b>[MESSAGE.title]</b> <br>"
+							dat+="[MESSAGE.body] <BR>"
 							if(MESSAGE.img)
 								user << browse_rsc(MESSAGE.img, "tmp_photo[i].png")
 								dat+="<img src='tmp_photo[i].png' width = '180'><BR>"
@@ -747,6 +778,9 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 
 
 ////////////////////////////////////helper procs
+
+/obj/machinery/newscaster/proc/job_blacklisted(datum/job/job)
+	return (job.type in jobblacklist)
 
 /obj/machinery/newscaster/proc/scan_user(mob/user)
 	if(ishuman(user))                      							 //User is a human

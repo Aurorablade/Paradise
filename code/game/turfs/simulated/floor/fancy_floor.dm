@@ -107,7 +107,7 @@
 				set_light(1, 1)
 
 /turf/simulated/floor/carpet
-	name = "Carpet"
+	name = "carpet"
 	icon = 'icons/turf/floors/carpet.dmi'
 	icon_state = "carpet"
 	floor_tile = /obj/item/stack/tile/carpet
@@ -145,6 +145,11 @@
 	burnt = 1
 	update_icon()
 
+/turf/simulated/floor/carpet/black
+	icon = 'icons/turf/floors/carpet_black.dmi'
+	floor_tile = /obj/item/stack/tile/carpet/black
+	canSmoothWith = list(/turf/simulated/floor/carpet/black)
+
 /turf/simulated/floor/fakespace
 	icon = 'icons/turf/space.dmi'
 	icon_state = "0"
@@ -154,3 +159,9 @@
 /turf/simulated/floor/fakespace/New()
 	..()
 	icon_state = "[rand(0,25)]"
+
+/turf/simulated/floor/carpet/arcade
+	icon = 'icons/goonstation/turf/floor.dmi'
+	icon_state = "arcade"
+	floor_tile = /obj/item/stack/tile/arcade_carpet
+	smooth = SMOOTH_FALSE

@@ -9,7 +9,7 @@
 	item_state = "lighter-g"
 	var/icon_on = "lighter-g-on"
 	var/icon_off = "lighter-g"
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	throwforce = 4
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
@@ -35,7 +35,7 @@
 	if(user.r_hand == src || user.l_hand == src || isrobot(user))
 		if(!lit)
 			lit = 1
-			w_class = 4
+			w_class = WEIGHT_CLASS_BULKY
 			icon_state = icon_on
 			item_state = icon_on
 			if(istype(src, /obj/item/weapon/lighter/zippo) )
@@ -50,7 +50,7 @@
 					if(ishuman(M))
 						var/mob/living/carbon/human/H = M
 						var/obj/item/organ/external/affecting = H.get_organ("[user.hand ? "l" : "r" ]_hand")
-						if(affecting.take_damage( 0, 5 ))		//INFERNO
+						if(affecting.receive_damage( 0, 5 ))		//INFERNO
 							H.UpdateDamageIcon()
 							H.updatehealth()
 					user.visible_message("<span class='notice'>After a few attempts, [user] manages to light the [src], they however burn their finger in the process.</span>")
@@ -59,7 +59,7 @@
 			processing_objects.Add(src)
 		else
 			lit = 0
-			w_class = 1
+			w_class = WEIGHT_CLASS_TINY
 			icon_state = icon_off
 			item_state = icon_off
 			if(istype(src, /obj/item/weapon/lighter/zippo) )
@@ -147,7 +147,7 @@
 	icon_state = "match_unlit"
 	var/lit = 0
 	var/smoketime = 5
-	w_class = 1
+	w_class = WEIGHT_CLASS_TINY
 	origin_tech = "materials=1"
 	attack_verb = list("burnt", "singed")
 

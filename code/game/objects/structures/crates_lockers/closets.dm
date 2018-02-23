@@ -8,6 +8,8 @@
 	var/icon_opened = "open"
 	var/opened = 0
 	var/welded = 0
+	var/locked = 0
+	var/broken = 0
 	var/wall_mounted = 0 //never solid (You can always pass over it)
 	var/health = 100
 	var/lastbang
@@ -31,9 +33,6 @@
 	dump_contents()
 	return ..()
 
-/obj/structure/closet/alter_health()
-	return get_turf(src)
-
 /obj/structure/closet/CanPass(atom/movable/mover, turf/target, height=0)
 	if(height==0 || wall_mounted) return 1
 	return (!density)
@@ -56,7 +55,7 @@
 		if(throwing) // you keep some momentum when getting out of a thrown closet
 			step(AM, dir)
 	if(throwing)
-		throwing = 0
+		throwing.finalize(FALSE)
 
 /obj/structure/closet/proc/open()
 	if(opened)
@@ -193,6 +192,9 @@
 							L[tmpname] = R
 					var/desc = input("Please select a telepad.", "RCS") in L
 					E.pad = L[desc]
+					if(!Adjacent(user))
+						to_chat(user, "<span class='notice'>Unable to teleport, too far from crate.</span>")
+						return
 					playsound(E.loc, E.usesound, 50, 1)
 					to_chat(user, "<span class='notice'>Teleporting [name]...</span>")
 					E.teleporting = 1
@@ -204,17 +206,22 @@
 						to_chat(user, "<span class='warning'>Error: User located in container--aborting for safety.</span>")
 						playsound(E.loc, 'sound/machines/buzz-sigh.ogg', 50, 1)
 						return
-					var/datum/effect/system/spark_spread/s = new /datum/effect/system/spark_spread
+					if(!(E.rcell && E.rcell.use(E.chargecost)))
+						to_chat(user, "<span class='notice'>Unable to teleport, insufficient charge.</span>")
+						return
+					var/datum/effect_system/spark_spread/s = new /datum/effect_system/spark_spread
 					s.set_up(5, 1, src)
 					s.start()
 					do_teleport(src, E.pad, 0)
-					E.rcell.use(E.chargecost)
 					to_chat(user, "<span class='notice'>Teleport successful. [round(E.rcell.charge/E.chargecost)] charge\s left.</span>")
 					return
 			else
 				E.rand_x = rand(50,200)
 				E.rand_y = rand(50,200)
 				var/L = locate(E.rand_x, E.rand_y, 6)
+				if(!Adjacent(user))
+					to_chat(user, "<span class='notice'>Unable to teleport, too far from crate.</span>")
+					return
 				playsound(E.loc, E.usesound, 50, 1)
 				to_chat(user, "<span class='notice'>Teleporting [name]...</span>")
 				E.teleporting = 1
@@ -226,11 +233,13 @@
 					to_chat(user, "<span class='warning'>Error: User located in container--aborting for safety.</span>")
 					playsound(E.loc, 'sound/machines/buzz-sigh.ogg', 50, 1)
 					return
-				var/datum/effect/system/spark_spread/s = new /datum/effect/system/spark_spread
+				if(!(E.rcell && E.rcell.use(E.chargecost)))
+					to_chat(user, "<span class='notice'>Unable to teleport, insufficient charge.</span>")
+					return
+				var/datum/effect_system/spark_spread/s = new /datum/effect_system/spark_spread
 				s.set_up(5, 1, src)
 				s.start()
 				do_teleport(src, L)
-				E.rcell.use(E.chargecost)
 				to_chat(user, "<span class='notice'>Teleport successful. [round(E.rcell.charge/E.chargecost)] charge\s left.</span>")
 				return
 		else
@@ -327,7 +336,7 @@
 /obj/structure/closet/attack_hand(mob/user)
 	add_fingerprint(user)
 	toggle(user)
-	
+
 /obj/structure/closet/attack_ghost(mob/user)
 	if(user.can_advanced_admin_interact())
 		toggle(user)

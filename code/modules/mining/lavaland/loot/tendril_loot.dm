@@ -5,7 +5,7 @@
 	name = "paradox bag"
 	desc = "Somehow, it's in two places at once."
 	max_combined_w_class = 60
-	max_w_class = 3
+	max_w_class = WEIGHT_CLASS_NORMAL
 
 //External
 /obj/item/device/shared_storage
@@ -144,7 +144,7 @@
 	item_state = "rods"
 	desc = "Not to be confused with the kind Research hassles you for."
 	force = 12
-	w_class = 3
+	w_class = WEIGHT_CLASS_NORMAL
 	burn_state = LAVA_PROOF | FIRE_PROOF
 
 /datum/crafting_recipe/oar
@@ -259,14 +259,14 @@
 		to_chat(user, "[src] fizzles uselessly.")
 		return
 
-	var/datum/effect/system/harmless_smoke_spread/smoke = new /datum/effect/system/harmless_smoke_spread()
+	var/datum/effect_system/smoke_spread/smoke = new
 	smoke.set_up(1, 0, user.loc)
 	smoke.start()
 
 	user.forceMove(get_turf(linked))
 	feedback_add_details("warp_cube","[src.type]")
 
-	var/datum/effect/system/harmless_smoke_spread/smoke2 = new /datum/effect/system/harmless_smoke_spread()
+	var/datum/effect_system/smoke_spread/smoke2 = new
 	smoke2.set_up(1, 0, user.loc)
 	smoke2.start()
 

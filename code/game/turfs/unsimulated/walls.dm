@@ -13,13 +13,13 @@
 
 /turf/unsimulated/wall/fakedoor
 	name = "Centcom Access"
-	icon = 'icons/obj/doors/Doorele.dmi'
-	icon_state = "door_closed"
+	icon = 'icons/obj/doors/airlocks/centcom/centcom.dmi'
+	icon_state = "closed"
 
-turf/unsimulated/wall/splashscreen
+/turf/unsimulated/wall/splashscreen
 	name = "Space Station 13"
-	icon = 'icons/misc/fullscreen.dmi'
-	icon_state = "title"
+	icon = 'config/title_screens/images/blank.png'
+	icon_state = ""
 	layer = FLY_LAYER
 
 /turf/unsimulated/wall/other

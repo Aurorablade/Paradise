@@ -15,22 +15,31 @@
 			return 1
 	return (!mover.density || !density || lying)
 
+//The byond version of these verbs wait for the next tick before acting.
+//	instant verbs however can run mid tick or even during the time between ticks.
+#define DO_MOVE(this_dir) var/final_dir = turn(this_dir, -dir2angle(dir)); Move(get_step(mob, final_dir), final_dir);
 
-/client/North()
-	..()
+/client/verb/moveup()
+	set name = ".moveup"
+	set instant = 1
+	DO_MOVE(NORTH)
 
+/client/verb/movedown()
+	set name = ".movedown"
+	set instant = 1
+	DO_MOVE(SOUTH)
 
-/client/South()
-	..()
+/client/verb/moveright()
+	set name = ".moveright"
+	set instant = 1
+	DO_MOVE(EAST)
 
+/client/verb/moveleft()
+	set name = ".moveleft"
+	set instant = 1
+	DO_MOVE(WEST)
 
-/client/West()
-	..()
-
-
-/client/East()
-	..()
-
+#undef DO_MOVE
 
 /client/Northeast()
 	swap_hand()
@@ -105,12 +114,11 @@
 
 /client/verb/toggle_throw_mode()
 	set hidden = 1
-	if(!istype(mob, /mob/living/carbon))
-		return
-	if(!mob.stat && isturf(mob.loc) && !mob.restrained())
-		mob:toggle_throw_mode()
+	if(iscarbon(mob))
+		var/mob/living/carbon/C = mob
+		C.toggle_throw_mode()
 	else
-		return
+		to_chat(usr, "<span class='danger'>This mob type cannot throw items.</span>")
 
 
 /client/verb/drop_item()
@@ -134,37 +142,39 @@
 /client/proc/Move_object(direct)
 	if(mob && mob.control_object)
 		if(mob.control_object.density)
-			step(mob.control_object,direct)
-			if(!mob.control_object)	return
-			mob.control_object.dir = direct
+			step(mob.control_object, direct)
+			if(!mob.control_object)
+				return
+			mob.control_object.setDir(direct)
 		else
-			mob.control_object.forceMove(get_step(mob.control_object,direct))
+			mob.control_object.forceMove(get_step(mob.control_object, direct))
 	return
 
-
+#define MOVEMENT_DELAY_BUFFER 0.75
+#define MOVEMENT_DELAY_BUFFER_DELTA 1.25
 /client/Move(n, direct)
+	if(world.time < move_delay)
+		return
+	var/old_move_delay = move_delay
+	move_delay = world.time + world.tick_lag //this is here because Move() can now be called multiple times per tick
+	if(!mob || !mob.loc)
+		return 0
 
-	if(viewingCanvas)
-		view = world.view //Reset the view
-		winset(src, "mapwindow.map", "icon-size=[src.reset_stretch]")
-		viewingCanvas = 0
-		mob.reset_perspective()
-		if(mob.hud_used)
-			mob.hud_used.show_hud(HUD_STYLE_STANDARD)
+	if(mob.notransform)
+		return 0 //This is sota the goto stop mobs from moving var
 
-	if(mob.control_object)	Move_object(direct)
+	if(mob.control_object)
+		return Move_object(direct)
 
-	if(world.time < move_delay)  return
+	if(!isliving(mob))
+		return mob.Move(n, direct)
 
-	if(!isliving(mob))  return mob.Move(n,direct)
+	if(mob.stat == DEAD)
+		mob.ghostize()
+		return 0
 
-	if(moving)  return 0
-
-	if(!mob)	return
-
-	if(mob.stat==DEAD)	return
-
-	if(mob.notransform)	return//This is sota the goto stop mobs from moving var
+	if(moving)
+		return 0
 
 	if(isliving(mob))
 		var/mob/living/L = mob
@@ -172,126 +182,109 @@
 			Process_Incorpmove(direct)
 			return
 
-	if(Process_Grab())	return
-
-	if(mob.buckled)							//if we're buckled to something, tell it we moved.
-		return mob.buckled.relaymove(mob, direct)
-
-	if(mob.remote_control)					//we're controlling something, our movement is relayed to it
+	if(mob.remote_control) //we're controlling something, our movement is relayed to it
 		return mob.remote_control.relaymove(mob, direct)
 
 	if(isAI(mob))
 		if(istype(mob.loc, /obj/item/device/aicard))
 			var/obj/O = mob.loc
-			return O.relaymove(mob, direct) //aicards have special relaymove stuff
-		return AIMove(n,direct,mob)
+			return O.relaymove(mob, direct) // aicards have special relaymove stuff
+		return AIMove(n, direct, mob)
+
+
+	if(Process_Grab())
+		return
+
+	if(mob.buckled) //if we're buckled to something, tell it we moved.
+		return mob.buckled.relaymove(mob, direct)
 
 	if(!mob.canmove)
 		return
 
-	//if(istype(mob.loc, /turf/space) || (mob.flags & NOGRAV))
-	//	if(!mob.Process_Spacemove(0))	return 0
-
 	if(!mob.lastarea)
 		mob.lastarea = get_area(mob.loc)
 
-	if(isobj(mob.loc) || ismob(mob.loc))//Inside an object, tell it we moved
+	if(isobj(mob.loc) || ismob(mob.loc)) //Inside an object, tell it we moved
 		var/atom/O = mob.loc
 		return O.relaymove(mob, direct)
-
-	if(istype(mob.get_active_hand(), /obj/item))
-		var/obj/item/I = mob.get_active_hand()
-		I.moved(mob, n, direct)
 
 	if(!mob.Process_Spacemove(direct))
 		return 0
 
-	if(isturf(mob.loc))
-
-		if(mob.restrained())//Why being pulled while cuffed prevents you from moving
-			for(var/mob/M in range(mob, 1))
-				if(M.pulling == mob)
-					if(!M.restrained() && M.stat == 0 && M.canmove && mob.Adjacent(M))
-						to_chat(src, "<span class='notice'>You're restrained! You can't move!</span>")
-						return 0
-					else
-						M.stop_pulling()
-
-		if(mob.pinned.len)
-			to_chat(src, "<span class='notice'>You're pinned to a wall by [mob.pinned[1]]!</span>")
-			return 0
-
-		var/turf/T = mob.loc
-		move_delay = world.time//set move delay
-		move_delay += T.slowdown
-		mob.last_movement = world.time
-		switch(mob.m_intent)
-			if("run")
-				if(mob.drowsyness > 0)
-					move_delay += 6
-				move_delay += 1+config.run_speed
-			if("walk")
-				move_delay += 1+config.walk_speed
-		move_delay += mob.movement_delay()
-
-		if(config.Tickcomp)
-			move_delay -= 1.3
-			var/tickcomp = ((1/(world.tick_lag))*1.3)
-			move_delay = move_delay + tickcomp
-
-		//We are now going to move
-		moving = 1
-		//Something with pulling things
-		if(locate(/obj/item/weapon/grab, mob))
-			move_delay = max(move_delay, world.time + 7)
-			var/list/L = mob.ret_grab()
-			if(istype(L, /list))
-				if(L.len == 2)
-					L -= mob
-					var/mob/M = L[1]
-					if(M)
-						if((get_dist(mob, M) <= 1 || M.loc == mob.loc))
-							. = ..()
-							if(isturf(M.loc))
-								var/diag = get_dir(mob, M)
-								if((diag - 1) & diag)
-								else
-									diag = null
-								if((get_dist(mob, M) > 1 || diag))
-									step(M, get_dir(M.loc, T))
+	if(mob.restrained()) // Why being pulled while cuffed prevents you from moving
+		for(var/mob/M in orange(1, mob))
+			if(M.pulling == mob)
+				if(!M.incapacitated() && mob.Adjacent(M))
+					to_chat(src, "<span class='warning'>You're restrained! You can't move!</span>")
+					move_delay = world.time + 10
+					return 0
 				else
-					for(var/mob/M in L)
-						M.other_mobs = 1
-						if(mob != M)
-							M.animate_movement = 3
-					for(var/mob/M in L)
-						spawn( 0 )
-							step(M, direct)
-							return
-						spawn( 1 )
-							M.other_mobs = null
-							M.animate_movement = 2
-							return
+					M.stop_pulling()
 
-		else if(mob.confused)
-			step(mob, pick(cardinal))
-		else
-			. = ..()
 
-		for(var/obj/item/weapon/grab/G in mob)
-			if(G.state == GRAB_NECK)
-				mob.setDir(reverse_dir[direct])
-			G.adjust_position()
-		for(var/obj/item/weapon/grab/G in mob.grabbed_by)
-			G.adjust_position()
+	//We are now going to move
+	moving = 1
+	var/delay = mob.movement_delay()
+	if(old_move_delay + (delay * MOVEMENT_DELAY_BUFFER_DELTA) + MOVEMENT_DELAY_BUFFER > world.time)
+		move_delay = old_move_delay + delay
+	else
+		move_delay = delay + world.time
+	mob.last_movement = world.time
 
-		moving = 0
-		if(mob && .)
-			mob.throwing = 0
+	if(locate(/obj/item/weapon/grab, mob))
+		move_delay = max(move_delay, world.time + 7)
+		var/list/L = mob.ret_grab()
+		if(istype(L, /list))
+			if(L.len == 2)
+				L -= mob
+				var/mob/M = L[1]
+				if(M)
+					if((get_dist(mob, M) <= 1 || M.loc == mob.loc))
+						var/turf/prev_loc = mob.loc
+						. = ..()
+						if(M && isturf(M.loc)) // Mob may get deleted during parent call
+							var/diag = get_dir(mob, M)
+							if((diag - 1) & diag)
+							else
+								diag = null
+							if((get_dist(mob, M) > 1 || diag))
+								step(M, get_dir(M.loc, prev_loc))
+			else
+				for(var/mob/M in L)
+					M.other_mobs = 1
+					if(mob != M)
+						M.animate_movement = 3
+				for(var/mob/M in L)
+					spawn(0)
+						step(M, direct)
+						return
+					spawn(1)
+						M.other_mobs = null
+						M.animate_movement = 2
+						return
 
-		return .
+	else if(mob.confused)
+		step(mob, pick(cardinal))
+	else
+		. = ..()
 
-	return
+	for(var/obj/item/weapon/grab/G in mob)
+		if(G.state == GRAB_NECK)
+			mob.setDir(reverse_dir[direct])
+		G.adjust_position()
+	for(var/obj/item/weapon/grab/G in mob.grabbed_by)
+		G.adjust_position()
+
+	moving = 0
+	if(mob && .)
+		if(mob.throwing)
+			mob.throwing.finalize(FALSE)
+
+	for(var/obj/O in mob)
+		O.on_mob_move(direct, mob)
+
+
+
 
 
 ///Process_Grab()
@@ -376,13 +369,12 @@
 				spawn(0)
 					var/limit = 2//For only two trailing shadows.
 					for(var/turf/T in getline(mobloc, L.loc))
-						spawn(0)
-							anim(T,L,'icons/mob/mob.dmi',,"shadow",,L.dir)
+						new /obj/effect/temp_visual/dir_setting/ninja/shadow(T, L.dir)
 						limit--
-						if(limit<=0)	break
+						if(limit<=0)
+							break
 			else
-				spawn(0)
-					anim(mobloc,mob,'icons/mob/mob.dmi',,"shadow",,L.dir)
+				new /obj/effect/temp_visual/dir_setting/ninja/shadow(mobloc, L.dir)
 				L.forceMove(get_step(L, direct))
 			L.dir = direct
 		if(3) //Incorporeal move, but blocked by holy-watered tiles
@@ -408,13 +400,13 @@
 	var/atom/movable/backup = get_spacemove_backup()
 	if(backup)
 		if(istype(backup) && movement_dir && !backup.anchored)
-			if(backup.newtonian_move(turn(movement_dir, 180))) //You're pushing off something movable, so it moves
-				src << "<span class='info'>You push off of [backup] to propel yourself.</span>"
+			var/opposite_dir = turn(movement_dir, 180)
+			if(backup.newtonian_move(opposite_dir)) //You're pushing off something movable, so it moves
+				to_chat(src, "<span class='notice'>You push off of [backup] to propel yourself.</span>")
 		return 1
 	return 0
 
 /mob/get_spacemove_backup()
-	var/atom/movable/dense_object_backup
 	for(var/A in orange(1, get_turf(src)))
 		if(isarea(A))
 			continue
@@ -434,9 +426,7 @@
 					return AM
 				if(pulling == AM)
 					continue
-				dense_object_backup = AM
-				break
-	. = dense_object_backup
+				. = AM
 
 
 /mob/proc/mob_has_gravity(turf/T)

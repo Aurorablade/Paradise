@@ -7,7 +7,7 @@
 	icon_state = "supermatter"
 	sharp = 1
 	edge = 1
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	flags = CONDUCT
 	light_color = "#8A8A00"
 	var/brightness = 2
@@ -56,7 +56,7 @@
 				var/obj/item/organ/external/affecting = H.get_organ(pick("l_foot", "r_foot"))
 				if(affecting.status & ORGAN_ROBOT)
 					return
-				if(affecting.take_damage(5, 20))
+				if(affecting.receive_damage(5, 20))
 					H.UpdateDamageIcon()
 				H.updatehealth()
 				if(!(H.species && (H.species.flags & NO_PAIN)))
@@ -85,7 +85,7 @@
 	icon = 'icons/obj/weapons.dmi'
 	icon_state = "tongs"
 	edge = 1
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	flags = CONDUCT
 	var/obj/item/held = null // The item currently being held
 

@@ -109,7 +109,7 @@
 
 ///////////OFFHAND///////////////
 /obj/item/weapon/twohanded/offhand
-	w_class = 5
+	w_class = WEIGHT_CLASS_HUGE
 	icon_state = "offhand"
 	name = "offhand"
 	flags = ABSTRACT
@@ -123,7 +123,7 @@
 ///////////Two hand required objects///////////////
 //This is for objects that require two hands to even pick up
 /obj/item/weapon/twohanded/required/
-	w_class = 5
+	w_class = WEIGHT_CLASS_HUGE
 
 /obj/item/weapon/twohanded/required/attack_self()
 	return
@@ -162,8 +162,7 @@
 	force = 5
 	throwforce = 15
 	sharp = 1
-	edge = 1
-	w_class = 4
+	w_class = WEIGHT_CLASS_BULKY
 	slot_flags = SLOT_BACK
 	force_unwielded = 5
 	force_wielded = 24
@@ -199,27 +198,31 @@
 	throwforce = 5.0
 	throw_speed = 1
 	throw_range = 5
-	w_class = 2
+	w_class = WEIGHT_CLASS_SMALL
 	force_unwielded = 3
 	force_wielded = 34
 	wieldsound = 'sound/weapons/saberon.ogg'
 	unwieldsound = 'sound/weapons/saberoff.ogg'
 	armour_penetration = 35
-	origin_tech = "magnets=3;syndicate=4"
+	origin_tech = "magnets=4;syndicate=5"
 	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
 	block_chance = 75
 	sharp = 1
-	edge = 1
-	no_embed = 1 // Like with the single-handed esword, this shouldn't be embedding in people.
+	light_power = 2
+	var/brightness_on = 2
+	var/colormap = list(red=LIGHT_COLOR_RED, blue=LIGHT_COLOR_LIGHTBLUE, green=LIGHT_COLOR_GREEN, purple=LIGHT_COLOR_PURPLE, rainbow=LIGHT_COLOR_WHITE)
 
 /obj/item/weapon/twohanded/dualsaber/New()
-	blade_color = pick("red", "blue", "green", "purple")
+	if(!blade_color)
+		blade_color = pick("red", "blue", "green", "purple")
 
 /obj/item/weapon/twohanded/dualsaber/update_icon()
 	if(wielded)
 		icon_state = "dualsaber[blade_color][wielded]"
+		set_light(brightness_on, l_color=colormap[blade_color])
 	else
 		icon_state = "dualsaber0"
+		set_light(0)
 
 /obj/item/weapon/twohanded/dualsaber/attack(target as mob, mob/living/user as mob)
 	if(HULK in user.mutations)
@@ -242,16 +245,16 @@
 		return ..()
 	return 0
 
-/obj/item/weapon/twohanded/dualsaber/green/New()
+/obj/item/weapon/twohanded/dualsaber/green
 	blade_color = "green"
 
-/obj/item/weapon/twohanded/dualsaber/red/New()
+/obj/item/weapon/twohanded/dualsaber/red
 	blade_color = "red"
 
-/obj/item/weapon/twohanded/dualsaber/purple/New()
+/obj/item/weapon/twohanded/dualsaber/purple
 	blade_color = "purple"
 
-/obj/item/weapon/twohanded/dualsaber/blue/New()
+/obj/item/weapon/twohanded/dualsaber/blue
 	blade_color = "blue"
 
 /obj/item/weapon/twohanded/dualsaber/unwield()
@@ -286,7 +289,7 @@
 	name = "spear"
 	desc = "A haphazardly-constructed yet still deadly weapon of ancient design."
 	force = 10
-	w_class = 4
+	w_class = WEIGHT_CLASS_BULKY
 	slot_flags = SLOT_BACK
 	force_unwielded = 10
 	force_wielded = 18
@@ -297,7 +300,6 @@
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	attack_verb = list("attacked", "poked", "jabbed", "torn", "gored")
 	sharp = 1
-	edge = 1
 	no_spin_thrown = 1
 	var/obj/item/weapon/grenade/explosive = null
 	var/war_cry = "AAAAARGH!!!"
@@ -345,6 +347,7 @@
 	if(G)
 		explosive = G
 		name = "explosive lance"
+		embed_chance = 0
 		desc = "A makeshift spear with [G] attached to it. Alt+click on the spear to set your war cry!"
 		update_icon()
 
@@ -433,7 +436,7 @@
 	flags = CONDUCT
 	force = 13
 	var/force_on = 21
-	w_class = 5
+	w_class = WEIGHT_CLASS_HUGE
 	throwforce = 13
 	throw_speed = 2
 	throw_range = 4
@@ -442,7 +445,6 @@
 	attack_verb = list("sawed", "cut", "hacked", "carved", "cleaved", "butchered", "felled", "timbered")
 	hitsound = "swing_hit"
 	sharp = 1
-	edge = 1
 	actions_types = list(/datum/action/item_action/startchainsaw)
 	var/on = 0
 
@@ -490,7 +492,7 @@
 	throwforce = 15
 	throw_speed = 1
 	throw_range = 5
-	w_class = 4 // can't fit in backpacks
+	w_class = WEIGHT_CLASS_BULKY // can't fit in backpacks
 	force_unwielded = 15 //still pretty robust
 	force_wielded = 40  //you'll gouge their eye out! Or a limb...maybe even their entire body!
 	wieldsound = 'sound/weapons/chainsawstart.ogg'
@@ -499,8 +501,6 @@
 	origin_tech = "materials=6;syndicate=4"
 	attack_verb = list("sawed", "cut", "hacked", "carved", "cleaved", "butchered", "felled", "timbered")
 	sharp = 1
-	edge = 1
-	no_embed = 1
 
 /obj/item/weapon/twohanded/chainsaw/update_icon()
 	if(wielded)
@@ -539,15 +539,14 @@
 	icon_state = "mjollnir0"
 	flags = CONDUCT
 	slot_flags = SLOT_BACK
-	no_embed = 1
 	force = 5
 	force_unwielded = 5
 	force_wielded = 20
 	throwforce = 15
 	throw_range = 1
-	w_class = 5
+	w_class = WEIGHT_CLASS_HUGE
 	var/charged = 5
-	origin_tech = "combat=5;bluespace=4"
+	origin_tech = "combat=4;bluespace=4;plasmatech=7"
 
 /obj/item/weapon/twohanded/singularityhammer/New()
 	..()
@@ -604,18 +603,17 @@
 	icon_state = "mjollnir0"
 	flags = CONDUCT
 	slot_flags = SLOT_BACK
-	no_embed = 1
 	force = 5
 	force_unwielded = 5
 	force_wielded = 25
 	throwforce = 30
 	throw_range = 7
-	w_class = 5
+	w_class = WEIGHT_CLASS_HUGE
 	//var/charged = 5
-	origin_tech = "combat=5;powerstorage=5"
+	origin_tech = "combat=4;powerstorage=7"
 
 /obj/item/weapon/twohanded/mjollnir/proc/shock(mob/living/target as mob)
-	var/datum/effect/system/spark_spread/s = new /datum/effect/system/spark_spread()
+	var/datum/effect_system/spark_spread/s = new /datum/effect_system/spark_spread()
 	s.set_up(5, 1, target.loc)
 	s.start()
 	target.visible_message("<span class='danger'>[target.name] was shocked by the [src.name]!</span>", \
@@ -652,13 +650,12 @@
 	icon_state = "knighthammer0"
 	flags = CONDUCT
 	slot_flags = SLOT_BACK
-	no_embed = 1
 	force = 5
 	force_unwielded = 5
 	force_wielded = 30
 	throwforce = 15
 	throw_range = 1
-	w_class = 5
+	w_class = WEIGHT_CLASS_HUGE
 	var/charged = 5
 	origin_tech = "combat=5;bluespace=4"
 
@@ -718,8 +715,7 @@
 	force = 5
 	throwforce = 15
 	sharp = 1
-	edge = 1
-	w_class = 5
+	w_class = WEIGHT_CLASS_HUGE
 	armour_penetration = 20
 	slot_flags = SLOT_BACK
 	force_unwielded  = 5
@@ -745,7 +741,7 @@
 				Z.take_organ_damage(0,30)
 				user.visible_message("<span class='danger'>[user] slams the charged axe into [Z.name] with all their might!</span>")
 				playsound(loc, 'sound/magic/lightningbolt.ogg', 5, 1)
-				var/datum/effect/system/spark_spread/sparks = new /datum/effect/system/spark_spread
+				var/datum/effect_system/spark_spread/sparks = new /datum/effect_system/spark_spread
 				sparks.set_up(1, 1, src)
 				sparks.start()
 

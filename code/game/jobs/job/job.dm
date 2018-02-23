@@ -10,6 +10,7 @@
 	//Bitflags for the job
 	var/flag = 0
 	var/department_flag = 0
+	var/department_head = list()
 
 	//Players will be allowed to spawn in as jobs that are set to "Station"
 	var/list/faction = list("Station")
@@ -50,6 +51,8 @@
 
 	var/exp_requirements = 0
 	var/exp_type = ""
+
+	var/disabilities_allowed = 1
 
 	var/admin_only = 0
 	var/spawn_ert = 0
@@ -108,6 +111,18 @@
 		return 0
 
 	return max(0, minimal_player_age - C.player_age)
+
+/datum/job/proc/barred_by_disability(client/C)
+	if(!C)
+		return 0
+	if(disabilities_allowed)
+		return 0
+	var/list/prohibited_disabilities = list(DISABILITY_FLAG_DEAF, DISABILITY_FLAG_BLIND, DISABILITY_FLAG_MUTE, DISABILITY_FLAG_SCRAMBLED, DISABILITY_FLAG_EPILEPTIC, DISABILITY_FLAG_TOURETTES, DISABILITY_FLAG_NEARSIGHTED, DISABILITY_FLAG_DIZZY)
+	for(var/i = 1, i < prohibited_disabilities.len, i++)
+		var/this_disability = prohibited_disabilities[i]
+		if(C.prefs.disabilities & this_disability)
+			return 1
+	return 0
 
 /datum/job/proc/is_position_available()
 	return (current_positions < total_positions) || (total_positions == -1)
@@ -205,15 +220,15 @@
 			var/atom/placed_in = H.equip_or_collect(G.spawn_item(null, H.client.prefs.gear[G.display_name]))
 			if(istype(placed_in))
 				if(isturf(placed_in))
-					to_chat(H, "<span class='notice'>Placing \the [G] on [placed_in]!</span>")
+					to_chat(H, "<span class='notice'>Placing [G.display_name] on [placed_in]!</span>")
 				else
-					to_chat(H, "<span class='noticed'>Placing \the [G] in [placed_in.name]]")
+					to_chat(H, "<span class='noticed'>Placing [G.display_name] in [placed_in.name]")
 				continue
 			if(H.equip_to_appropriate_slot(G))
-				to_chat(H, "<span class='notice'>Placing \the [G] in your inventory!</span>")
+				to_chat(H, "<span class='notice'>Placing [G.display_name] in your inventory!</span>")
 				continue
 			if(H.put_in_hands(G))
-				to_chat(H, "<span class='notice'>Placing \the [G] in your hands!</span>")
+				to_chat(H, "<span class='notice'>Placing [G.display_name] in your hands!</span>")
 				continue
 			to_chat(H, "<span class='danger'>Failed to locate a storage object on your mob, either you spawned with no hands free and no backpack or this is a bug.</span>")
 			qdel(G)

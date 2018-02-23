@@ -8,7 +8,7 @@
 	var/datum/dna2/record/buf = null
 	throw_speed = 3
 	throw_range = 5
-	w_class = 1
+	w_class = WEIGHT_CLASS_TINY
 	origin_tech = "biotech=1"
 
 	var/damage_coeff = 1
@@ -74,7 +74,7 @@
 		H = M
 
 	spawn(0) //Some mutations have sleeps in them, like monkey
-		if(!(NOCLONE in M.mutations) && !(H && (H.species.flags & NO_DNA))) // prevents drained people from having their DNA changed
+		if(!(NOCLONE in M.mutations) && !(H && (NO_DNA in H.species.species_traits))) // prevents drained people from having their DNA changed
 			var/prev_ue = M.dna.unique_enzymes
 			var/mutflags = 0
 			// UI in syringe.
@@ -113,7 +113,7 @@
 
 	if(ishuman(M)) // Would've done this via species instead of type, but the basic mob doesn't have a species, go figure.
 		var/mob/living/carbon/human/H = M
-		if(H.species.flags & NO_DNA)
+		if(NO_DNA in H.species.species_traits)
 			return 0
 
 	if(!user.IsAdvancedToolUser())
@@ -251,23 +251,23 @@
 		..()
 
 /obj/item/weapon/dnainjector/nobreath
-	name = "DNA-Injector (No Breath)"
+	name = "DNA-Injector (Breathless)"
 	desc = "Hold your breath and count to infinity."
 	datatype = DNA2_BUF_SE
 	value = 0xFFF
 	//block = 2
 	New()
-		block = NOBREATHBLOCK
+		block = BREATHLESSBLOCK
 		..()
 
 /obj/item/weapon/dnainjector/antinobreath
-	name = "DNA-Injector (Anti-No Breath)"
+	name = "DNA-Injector (Anti-Breathless)"
 	desc = "Hold your breath and count to 100."
 	datatype = DNA2_BUF_SE
 	value = 0x001
 	//block = 2
 	New()
-		block = NOBREATHBLOCK
+		block = BREATHLESSBLOCK
 		..()
 
 /obj/item/weapon/dnainjector/remoteview

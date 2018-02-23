@@ -174,7 +174,7 @@
 	take_damage(damage, BRUTE)
 	return
 
-/obj/structure/blob/proc/take_damage(damage, damage_type)
+/obj/structure/blob/take_damage(damage, damage_type)
 	if(!damage || damage_type == STAMINA) // Avoid divide by zero errors
 		return
 	switch(damage_type)
@@ -202,7 +202,7 @@
 
 /obj/structure/blob/examine(mob/user)
 	..(user)
-	to_chat(user, "It looks like it's of a [get_chem_name()] kind.")
+	to_chat(user, "It looks like it's made of [get_chem_name()].")
 
 
 /obj/structure/blob/proc/get_chem_name()

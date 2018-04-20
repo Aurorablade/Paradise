@@ -23,9 +23,9 @@
 		trait_holder.add_trait(mob_trait, ROUNDSTART_TRAIT)
 	START_PROCESSING(SStraits, src)
 	add()
-	if(!SSticker.HasRoundStarted()) //on roundstart or on latejoin; latejoin code is in new_player.dm
+	if(ticker && ticker.current_state < GAME_STATE_PLAYING) //on roundstart or on latejoin; latejoin code is in new_player.dm
 		on_spawn()
-	addtimer(CALLBACK(src, .proc/post_add), 30)
+	addtimer(src, "post_add", 30)
 
 /datum/trait/Destroy()
 	STOP_PROCESSING(SStraits, src)

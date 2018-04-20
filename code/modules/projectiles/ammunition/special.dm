@@ -21,7 +21,7 @@
 	harmful = FALSE
 
 /obj/item/ammo_casing/magic/door
-harmful = FALSE
+	harmful = FALSE
 	projectile_type = /obj/item/projectile/magic/door
 
 /obj/item/ammo_casing/magic/fireball

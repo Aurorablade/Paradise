@@ -199,7 +199,7 @@ REAGENT SCANNER
 		var/mob/living/carbon/human/H = M
 
 		if(H.roundstart_traits.len)
-			user.show_message("<span class='info'>Subject has the following physiological traits: [C.get_trait_string()].</span>")
+			user.show_message("<span class='info'>Subject has the following physiological traits: [H.get_trait_string()].</span>")
 
 		for(var/name in H.bodyparts_by_name)
 			var/obj/item/organ/external/e = H.bodyparts_by_name[name]

@@ -30,7 +30,7 @@
 	else if(isliving(usr))
 		var/mob/living/L = usr
 		if(L.has_trait(TRAIT_SPIRITUAL))
-			ccross = image('icons/obj/storage.dmi', "holylight")
+			cross = image('icons/obj/storage.dmi', "holylight")
 			font_color = "blue"
 			prayer_type = "SPIRITUAL PRAYER"
 

@@ -1147,7 +1147,7 @@ var/global/list/special_role_times = list( //minimum age (in days) for accounts 
 		return 1
 
 	else if(href_list["preference"] == "trait")
-		if(SSticker.HasRoundStarted() && !isnewplayer(user))
+		if((ticker && ticker.current_state < GAME_STATE_PLAYING) && !isnewplayer(user))
 			to_chat(user, "<span class='danger'>The round has already started. Please wait until next round to set up your traits!</span>")
 			return
 		switch(href_list["task"])

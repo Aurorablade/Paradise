@@ -1900,7 +1900,7 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 		to_chat(src, "Where do you intend to put \the [toEat]? You don't have a mouth!")
 		return 0
 	if(has_trait(TRAIT_VORACIOUS))
-		M.changeNext_move(CLICK_CD_MELEE * 0.5) //nom nom nom
+		changeNext_move(CLICK_CD_MELEE * 0.5) //nom nom nom
 	return ..()
 
 /mob/living/carbon/human/forceFed(var/obj/item/weapon/reagent_containers/food/toEat, mob/user, fullness)

@@ -64,7 +64,7 @@
 		if(L.has_trait(TRAIT_PROSOPAGNOSIA))
 			obscure_name = TRUE
 
-	var/msg = "<EM>[!obscure_name ? name : "Unknown"]</EM>!\n"
+	msg += "<EM>[!obscure_name ? name : "Unknown"]</EM>!\n"
 
 	var/list/nospecies = list("Abductor", "Shadowling", "Neara", "Monkey", "Stok", "Farwa", "Wolpin") //species that won't show their race no matter what
 

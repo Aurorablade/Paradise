@@ -1061,8 +1061,8 @@ var/list/non_fakeattack_weapons = list(/obj/item/weapon/gun/projectile, /obj/ite
 
 /obj/effect/hallucination/rds
 
-/obj/effect/hallucination/rds/New(loc, mob/living/carbon/T)
-	switch(rand(1,4)
+/obj/effect/hallucination/rds/New(loc, mob/living/carbon/C)
+	switch(rand(1,4))
 		if(1)
 			to_chat(src, "<span class='userdanger'>[pick("Leave the server" , "Close the game window")] [pick("immediately", "right now")].</span>")
 		if(2)

@@ -197,6 +197,10 @@ REAGENT SCANNER
 		user.show_message("<span class='warning'>Significant brain damage detected. Subject may have had a concussion.</span>")
 	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
+
+		if(H.roundstart_traits.len)
+			user.show_message("<span class='info'>Subject has the following physiological traits: [C.get_trait_string()].</span>")
+
 		for(var/name in H.bodyparts_by_name)
 			var/obj/item/organ/external/e = H.bodyparts_by_name[name]
 			if(!e)

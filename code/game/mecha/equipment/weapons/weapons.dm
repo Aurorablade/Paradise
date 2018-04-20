@@ -11,6 +11,8 @@
 	var/projectile_delay = 0
 	var/projectiles
 	var/projectile_energy_cost
+	harmful = TRUE
+
 
 /obj/item/mecha_parts/mecha_equipment/weapon/can_attach(var/obj/mecha/combat/M as obj)
 	if(..())

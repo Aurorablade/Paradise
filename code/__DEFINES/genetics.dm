@@ -93,6 +93,7 @@
 #define COLOURBLIND		64
 #define MUTE			128
 #define DEAF			256
+#define PACIFISM 		512
 
 //Nutrition levels for humans. No idea where else to put it
 #define NUTRITION_LEVEL_FAT 600

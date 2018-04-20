@@ -92,7 +92,7 @@
 	taste_message = "greytide"
 
 /datum/reagent/consumable/drink/blackeye_brew/on_mob_life(mob/living/M)
-	if(prob(25))
+	if(prob(25) && !M.has_trait(TRAIT_ALCOHOL_TOLERANCE))
 		var/list/tider_talk = list("I OWN THIS STATION NOW, I JUST BOUGHT IT.",
 									"SECRET TECHNIQUE: TOOLBOX TO THE FACE!",
 									"SECRET TECHNIQUE: PLASMA CANISTER FIRE!",

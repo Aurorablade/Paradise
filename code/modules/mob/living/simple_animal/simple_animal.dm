@@ -313,6 +313,9 @@
 			playsound(loc, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
 
 		if(INTENT_HARM, INTENT_DISARM)
+			if(M.has_trait(TRAIT_PACIFISM))
+				to_chat(M, "<span class='notice'>You don't want to hurt [src]!</span>")
+				return
 			M.do_attack_animation(src)
 			visible_message("<span class='danger'>[M] [response_harm] [src]!</span>")
 			playsound(loc, "punch", 25, 1, -1)

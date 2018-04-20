@@ -23,7 +23,7 @@
 /obj/item/weapon/reagent_containers/food/drinks/attack_self(mob/user)
 	return
 
-/obj/item/weapon/reagent_containers/food/drinks/attack(mob/M, mob/user, def_zone)
+/obj/item/weapon/reagent_containers/food/drinks/attack(mob/living/M, mob/user, def_zone)
 	if(!reagents || !reagents.total_volume)
 		to_chat(user, "<span class='warning'> None of [src] left, oh no!</span>")
 		return 0

@@ -99,6 +99,10 @@
 #define INTENT_GRAB		"grab"
 #define INTENT_HARM		"harm"
 
+
+//Traits
+#define MAX_TRAITS 6 //The maximum amount of traits one character can have at roundstart
+
 // Movement Intents
 #define MOVE_INTENT_WALK "walk"
 #define MOVE_INTENT_RUN  "run"

@@ -11,6 +11,7 @@
 	taste_message = "liquid fire"
 
 /datum/reagent/consumable/ethanol/on_mob_life(mob/living/M)
+//todo adjust for alch tolerance traits
 	M.AdjustDrunk(alcohol_perc)
 	M.AdjustDizzy(dizzy_adj)
 	..()
@@ -102,7 +103,9 @@
 
 //copy paste from LSD... shoot me
 /datum/reagent/consumable/ethanol/absinthe/on_mob_life(mob/living/M)
-	M.AdjustHallucinate(5)
+
+	if(!M.has_trait(TRAIT_ALCOHOL_TOLERANCE))
+		M.AdjustHallucinate(5)
 	..()
 
 /datum/reagent/consumable/ethanol/absinthe/overdose_process(mob/living/M, severity)
@@ -241,7 +244,8 @@
 	M.AdjustSleeping(-2)
 	if(M.bodytemperature > 310)
 		M.bodytemperature = max(310, M.bodytemperature - (5 * TEMPERATURE_DAMAGE_COEFFICIENT))
-	M.Jitter(5)
+	if(!M.has_trait(TRAIT_ALCOHOL_TOLERANCE))
+		M.Jitter(5)
 	..()
 
 
@@ -491,7 +495,8 @@
 	taste_message = "THE LAW"
 
 /datum/reagent/consumable/ethanol/beepsky_smash/on_mob_life(mob/living/M)
-	M.Stun(1)
+	if(!M.has_trait(TRAIT_ALCOHOL_TOLERANCE))
+		M.Stun(1)
 	..()
 
 /datum/reagent/consumable/ethanol/irish_cream
@@ -908,24 +913,27 @@
 	drink_desc = "A drink enjoyed by people during the 1960's."
 
 /datum/reagent/consumable/ethanol/hippies_delight/on_mob_life(mob/living/M)
-	M.Druggy(50)
-	switch(current_cycle)
-		if(1 to 5)
-			if(!M.stuttering) M.stuttering = 1
-			M.Dizzy(10)
-			if(prob(10)) M.emote(pick("twitch","giggle"))
-		if(5 to 10)
-			if(!M.stuttering) M.stuttering = 1
-			M.Jitter(20)
-			M.Dizzy(20)
-			M.Druggy(45)
-			if(prob(20)) M.emote(pick("twitch","giggle"))
-		if(10 to INFINITY)
-			if(!M.stuttering) M.stuttering = 1
-			M.Jitter(40)
-			M.Dizzy(40)
-			M.Druggy(60)
-			if(prob(30)) M.emote(pick("twitch","giggle"))
+	if(M.has_trait(TRAIT_ALCOHOL_TOLERANCE))
+		M.Druggy(10)
+	else
+		M.Druggy(50)
+		switch(current_cycle)
+			if(1 to 5)
+				if(!M.stuttering) M.stuttering = 1
+				M.Dizzy(10)
+				if(prob(10)) M.emote(pick("twitch","giggle"))
+			if(5 to 10)
+				if(!M.stuttering) M.stuttering = 1
+				M.Jitter(20)
+				M.Dizzy(20)
+				M.Druggy(45)
+				if(prob(20)) M.emote(pick("twitch","giggle"))
+			if(10 to INFINITY)
+				if(!M.stuttering) M.stuttering = 1
+				M.Jitter(40)
+				M.Dizzy(40)
+				M.Druggy(60)
+				if(prob(30)) M.emote(pick("twitch","giggle"))
 	..()
 
 /datum/reagent/consumable/ethanol/changelingsting
@@ -992,8 +1000,9 @@
 	taste_message = "bitter alcohol"
 
 /datum/reagent/consumable/ethanol/driestmartini/on_mob_life(mob/living/M)
-	if(current_cycle >= 55 && current_cycle < 115)
-		M.stuttering += 10
+	if(!M.has_trait(TRAIT_ALCOHOL_TOLERANCE))
+		if(current_cycle >= 55 && current_cycle < 115)
+			M.stuttering += 10
 	..()
 
 /datum/reagent/consumable/ethanol/kahlua
@@ -1011,7 +1020,8 @@
 	M.AdjustDizzy(-5)
 	M.AdjustDrowsy(-3)
 	M.AdjustSleeping(-2)
-	M.Jitter(5)
+	if(!M.has_trait(TRAIT_ALCOHOL_TOLERANCE))
+		M.Jitter(5)
 	..()
 
 /datum/reagent/ginsonic

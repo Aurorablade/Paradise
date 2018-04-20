@@ -107,6 +107,10 @@
 				return 1
 
 		if(INTENT_HARM)
+
+			if(M.disabilities & PACIFISM)
+				to_chat(M, "<span class='warning'>You don't want to harm [src]!</span>")
+				return
 			//Vampire code
 			if(M.mind && M.mind.vampire && (M.mind in ticker.mode.vampires) && !M.mind.vampire.draining && M.zone_sel && M.zone_sel.selecting == "head" && src != M)
 				if((NO_BLOOD in species.species_traits) || species.exotic_blood || !blood_volume)

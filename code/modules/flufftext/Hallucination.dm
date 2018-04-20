@@ -1054,3 +1054,21 @@ var/list/non_fakeattack_weapons = list(/obj/item/weapon/gun/projectile, /obj/ite
 						if(client)
 							client.images -= halbody
 						halbody = null
+
+
+
+
+
+/obj/effect/hallucination/rds
+
+/obj/effect/hallucination/rds/New(loc, mob/living/carbon/T)
+	switch(rand(1,4)
+		if(1)
+			to_chat(src, "<span class='userdanger'>[pick("Leave the server" , "Close the game window")] [pick("immediately", "right now")].</span>")
+		if(2)
+			src << sound('sound/magic/charge.ogg')
+			to_chat(src, "<span class='boldannounce'>You feel reality distort for a moment...</span>")
+		if(3)
+			C.playsound_local(C, pick('sound/hallucinations/im_here1.ogg' ,'sound/hallucinations/im_here2.ogg'), 50, FALSE, pressure_affected = FALSE)
+			to_chat(C, "<font size='15' color='red'><b>NAR-SIE HAS RISEN</b></font>")
+		if(4)

@@ -7,6 +7,7 @@
 	var/skipears = 0
 	var/skipeyes = 0
 	var/skipface = 0
+	var/obscure_name
 
 	//exosuits and helmets obscure our view and stuff.
 	if(wear_suit)
@@ -58,7 +59,12 @@
 				t_has = "have"
 				t_is = "are"
 
-	msg += "<EM>[name]</EM>"
+	if(isliving(user))
+		var/mob/living/L = user
+		if(L.has_trait(TRAIT_PROSOPAGNOSIA))
+			obscure_name = TRUE
+
+	var/msg = "<EM>[!obscure_name ? name : "Unknown"]</EM>!\n"
 
 	var/list/nospecies = list("Abductor", "Shadowling", "Neara", "Monkey", "Stok", "Farwa", "Wolpin") //species that won't show their race no matter what
 
@@ -364,6 +370,7 @@
 		if(digitalcamo)
 			msg += "[t_He] [t_is] moving [t_his] body in an unnatural and blatantly inhuman manner.\n"
 
+	var/traitstring = get_trait_string()
 	if(!(skipface || ( wear_mask && ( wear_mask.flags_inv & HIDEFACE || wear_mask.flags_cover & MASKCOVERSMOUTH) ) ) && is_thrall(src) && in_range(user,src))
 		msg += "Their features seem unnaturally tight and drawn.\n"
 
@@ -424,6 +431,9 @@
 
 	if(print_flavor_text() && !skipface)
 		msg += "[print_flavor_text()]\n"
+
+	if(isobserver(user) && traitstring)
+		msg += "<span class='info'><b>Traits:</b> [traitstring]</span><br>"
 
 	msg += "*---------*</span>"
 	if(pose)

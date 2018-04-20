@@ -146,6 +146,7 @@
 	icon_state = "bshell"
 	projectile_type = /obj/item/projectile/bullet/weakbullet
 	materials = list(MAT_METAL=250)
+	harmful = FALSE
 
 
 /obj/item/ammo_casing/shotgun/improvised
@@ -175,6 +176,7 @@
 	icon_state = "stunshell"
 	projectile_type = /obj/item/projectile/bullet/stunshot
 	materials = list(MAT_METAL=250)
+	harmful = FALSE
 
 
 /obj/item/ammo_casing/shotgun/meteorshot
@@ -269,6 +271,7 @@
 	icon_state = "nshell"
 	projectile_type = /obj/item/projectile/bullet/dart/syringe/tranquilizer
 	materials = list(MAT_METAL=250)
+	harmful = FALSE
 
 /obj/item/ammo_casing/a556
 	desc = "A 5.56mm bullet casing."
@@ -280,6 +283,7 @@
 	desc = "A weak beanbag shell."
 	icon_state = "bshell"
 	projectile_type = /obj/item/projectile/bullet/weakbullet/booze
+	harmful = FALSE
 
 /obj/item/ammo_casing/rocket
 	name = "rocket shell"
@@ -318,12 +322,14 @@
 	icon = 'icons/obj/guns/toy.dmi'
 	icon_state = "foamdart"
 	var/modified = 0
+	harmful = FALSE
 
 /obj/item/ammo_casing/caseless/foam_dart/update_icon()
 	..()
 	if(modified)
 		icon_state = "foamdart_empty"
 		desc = "Its nerf or nothing! ... Although, this one doesn't look too safe."
+		harmful = TRUE
 		if(BB)
 			BB.icon_state = "foamdart_empty"
 	else
@@ -374,6 +380,7 @@
 	desc = "A cap for children toys."
 	caliber = "caps"
 	projectile_type = /obj/item/projectile/bullet/cap
+	harmful = FALSE
 
 /obj/item/ammo_casing/laser
 	desc = "An experimental laser casing."

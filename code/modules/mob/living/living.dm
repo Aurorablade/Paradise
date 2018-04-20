@@ -1025,10 +1025,13 @@
 /mob/living/proc/can_use_guns(var/obj/item/weapon/gun/G)
 	if(G.trigger_guard != TRIGGER_GUARD_ALLOW_ALL && !IsAdvancedToolUser() && !issmall(src))
 		to_chat(src, "<span class='warning'>You don't have the dexterity to do this!</span>")
-		return 0
-	return 1
+		return FALSE
+
+	return TRUE
 
 /mob/living/proc/get_taste_sensitivity()
+	if(!has_trait(TRAIT_AGEUSIA))
+		return 0
 	return 1
 
 /mob/living/proc/taste_reagents(datum/reagents/tastes)

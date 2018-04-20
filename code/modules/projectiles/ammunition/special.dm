@@ -11,14 +11,17 @@
 
 /obj/item/ammo_casing/magic/heal
 	projectile_type = /obj/item/projectile/magic/resurrection
+	harmful = FALSE
 
 /obj/item/ammo_casing/magic/death
 	projectile_type = /obj/item/projectile/magic/death
 
 /obj/item/ammo_casing/magic/teleport
 	projectile_type = /obj/item/projectile/magic/teleport
+	harmful = FALSE
 
 /obj/item/ammo_casing/magic/door
+harmful = FALSE
 	projectile_type = /obj/item/projectile/magic/door
 
 /obj/item/ammo_casing/magic/fireball
@@ -36,6 +39,7 @@
 
 /obj/item/ammo_casing/magic/honk
 	projectile_type = /obj/item/projectile/bullet/honker
+	harmful = FALSE
 
 /obj/item/ammo_casing/forcebolt
 	projectile_type = /obj/item/projectile/forcebolt

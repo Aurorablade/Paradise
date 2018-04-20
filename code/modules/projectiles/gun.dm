@@ -186,10 +186,17 @@ obj/item/weapon/gun/proc/newshot()
 					break
 			if(chambered)
 				var/sprd = 0
+				if(user.has_trait(TRAIT_PACIFISM)) // If the user has the pacifist trait, then they won't be able to fire [src] if the round chambered inside of [src] is lethal.
+					if(chambered.harmful) // Is the bullet chambered harmful?
+						to_chat(user, "<span class='notice'> [src] is lethally chambered! You don't want to risk harming anyone...</span>")
+						return
 				if(randomspread)
 					sprd = round((rand() - 0.5) * spread)
 				else
 					sprd = round((i / burst_size - 0.5) * spread)
+
+				if(user.has_trait(TRAIT_POOR_AIM)) //nice shootin' tex
+					sprd += 25
 				if(!chambered.fire(target, user, params, ,suppressed, zone_override, sprd))
 					shoot_with_empty_chamber(user)
 					break
@@ -207,6 +214,10 @@ obj/item/weapon/gun/proc/newshot()
 		firing_burst = 0
 	else
 		if(chambered)
+			if(user.has_trait(TRAIT_PACIFISM)) // If the user has the pacifist trait, then they won't be able to fire [src] if the round chambered inside of [src] is lethal.
+				if(chambered.harmful) // Is the bullet chambered harmful?
+					to_chat(user, "<span class='notice'> [src] is lethally chambered! You don't want to risk harming anyone...</span>")
+					return
 			if(!chambered.fire(target, user, params, , suppressed, zone_override, spread))
 				shoot_with_empty_chamber(user)
 				return

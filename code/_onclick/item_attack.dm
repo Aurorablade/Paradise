@@ -29,6 +29,9 @@
 	if(flags & (NOBLUDGEON))
 		return 0
 
+	if(user.disabilities & PACIFISM)
+		return
+
 	if(can_operate(M))  //Checks if mob is lying down on table for surgery
 		if(istype(src,/obj/item/robot_parts))//popup override for direct attach
 			if(!attempt_initiate_surgery(src, M, user,1))

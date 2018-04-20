@@ -426,3 +426,30 @@
 /obj/structure/closet/get_remote_view_fullscreens(mob/user)
 	if(user.stat == DEAD || !(user.sight & (SEEOBJS|SEEMOBS)))
 		user.overlay_fullscreen("remote_view", /obj/screen/fullscreen/impaired, 1)
+
+/obj/structure/closet/CtrlShiftClick(mob/living/user)
+	if(!user.has_trait(TRAIT_SKITTISH))
+		return ..()
+	if(!user.canUseTopic(src) || !isturf(user.loc))
+		return
+	dive_into(user)
+
+/obj/structure/closet/proc/dive_into(mob/living/user)
+	var/turf/T1 = get_turf(user)
+	var/turf/T2 = get_turf(src)
+	if(!open() && !opened)
+		toggle(user, TRUE)
+		if(!open())
+			to_chat(user, "<span class='warning'>It won't budge!</span>")
+			return
+	step_towards(user, T2)
+	T1 = get_turf(user)
+	if(T1 == T2)
+		user.resting = TRUE //so people can jump into crates without slamming the lid on their head
+		if(!close())
+			to_chat(user, "<span class='warning'>You can't get [src] to close!</span>")
+			user.resting = FALSE
+			return
+		user.resting = FALSE
+		toggle(user)
+		T1.visible_message("<span class='warning'>[user] dives into [src]!</span>")

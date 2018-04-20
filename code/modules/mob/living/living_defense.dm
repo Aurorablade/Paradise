@@ -235,9 +235,13 @@
 
 /mob/living/proc/grabbedby(mob/living/carbon/user,var/supress_message = 0)
 	if(user == src || anchored)
-		return 0
+		return FALSE
 	if(!(status_flags & CANPUSH))
-		return 0
+		return FALSE
+
+	if(user.disabilities & PACIFISM)
+		to_chat(user, "<span class='notice'>You don't want to risk hurting [src]!</span>")
+		return FALSE
 
 	for(var/obj/item/weapon/grab/G in src.grabbed_by)
 		if(G.assailant == user)
@@ -250,7 +254,7 @@
 	if(buckled)
 		to_chat(user, "<span class='notice'>You cannot grab [src], \he is buckled in!</span>")
 	if(!G)	//the grab will delete itself in New if src is anchored
-		return 0
+		return FALSE
 	user.put_in_active_hand(G)
 	G.synch()
 	LAssailant = user

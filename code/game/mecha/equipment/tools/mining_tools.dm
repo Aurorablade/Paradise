@@ -7,6 +7,7 @@
 	equip_cooldown = 30
 	energy_drain = 10
 	force = 15
+	harmful = TRUE
 
 /obj/item/mecha_parts/mecha_equipment/drill/action(atom/target)
 	if(!action_checks(target))

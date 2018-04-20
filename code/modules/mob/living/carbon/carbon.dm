@@ -216,27 +216,34 @@
 				var/status = ""
 				var/brutedamage = LB.brute_dam
 				var/burndamage = LB.burn_dam
+				if(has_trait(TRAIT_SELF_AWARE))
+					status = "[brutedamage] brute damage and [burndamage] burn damage"
+					if(!brutedamage && !burndamage)
+						status = "no damage"
+				else
+					if(brutedamage > 0)
+						status = "bruised"
+					if(brutedamage > 20)
+						status = "battered"
+					if(brutedamage > 40)
+						status = "mangled"
+					if(brutedamage > 0 && burndamage > 0)
+						status += " and "
+					if(burndamage > 40)
+						status += "peeling away"
 
-				if(brutedamage > 0)
-					status = "bruised"
-				if(brutedamage > 20)
-					status = "battered"
-				if(brutedamage > 40)
-					status = "mangled"
-				if(brutedamage > 0 && burndamage > 0)
-					status += " and "
-				if(burndamage > 40)
-					status += "peeling away"
+					else if(burndamage > 10)
+						status += "blistered"
+					else if(burndamage > 0)
+						status += "numb"
+					if(LB.status & ORGAN_MUTATED)
+						status = "weirdly shapen."
+					if(status == "")
+						status = "OK"
 
-				else if(burndamage > 10)
-					status += "blistered"
-				else if(burndamage > 0)
-					status += "numb"
-				if(LB.status & ORGAN_MUTATED)
-					status = "weirdly shapen."
-				if(status == "")
-					status = "OK"
-				to_chat(src, "\t <span class='[status == "OK" ? "notice" : "warning"]'>Your [LB.name] is [status].</span>")
+				if(status == "OK" || status == "no damage")
+					no_damage = TRUE
+				to_chat(src, "\t <span class='[no_damage ? "notice" : "warning"]'>Your [LB.name] [has_trait(TRAIT_SELF_AWARE) ? "has" : "is"] [status].</span>")
 
 				for(var/obj/item/I in LB.embedded_objects)
 					to_chat(src, "\t <a href='byond://?src=[UID()];embedded_object=[I.UID()];embedded_limb=[LB.UID()]' class='warning'>There is \a [I] embedded in your [LB.name]!</a>")
@@ -251,6 +258,25 @@
 					to_chat(src, "<span class='info'>You're completely exhausted.</span>")
 				else
 					to_chat(src, "<span class='info'>You feel fatigued.</span>")
+
+			if(has_trait(TRAIT_SELF_AWARE))
+				if(toxloss)
+					if(toxloss > 10)
+						to_chat(src, "<span class='danger'>You feel sick.</span>")
+					else if(toxloss > 20)
+						to_chat(src, "<span class='danger'>You feel nauseous.</span>")
+					else if(toxloss > 40)
+						to_chat(src, "<span class='danger'>You feel very unwell!</span>")
+				if(oxyloss)
+					if(oxyloss > 10)
+						to_chat(src, "<span class='danger'>You feel lightheaded.</span>")
+					else if(oxyloss > 20)
+						to_chat(src, "<span class='danger'>Your thinking is clouded and distant.</span>")
+					else if(oxyloss > 30)
+						to_chat(src, "<span class='danger'>You're choking!</span>")
+			if(roundstart_traits.len)
+				to_chat(src, "<span class='notice'>You have these traits: [get_trait_string()].</span>")
+
 			if((SKELETON in H.mutations) && (!H.w_uniform) && (!H.wear_suit))
 				H.play_xylophone()
 		else
@@ -557,6 +583,9 @@ var/list/ventcrawl_machinery = list(/obj/machinery/atmospherics/unary/vent_pump,
 		qdel(G)	//We delete the grab.
 		if(throwable_mob)
 			thrown_thing = throwable_mob
+			if(disabilities & PACIFISM)
+				to_chat(src, "<span class='notice'>You gently let go of [throwable_mob].</span>")
+				return
 			var/turf/start_T = get_turf(loc) //Get the start and target tile for the descriptors
 			var/turf/end_T = get_turf(target)
 			throwable_mob.forceMove(start_T)
@@ -569,6 +598,10 @@ var/list/ventcrawl_machinery = list(/obj/machinery/atmospherics/unary/vent_pump,
 	else if(!(I.flags & ABSTRACT)) //can't throw abstract items
 		thrown_thing = I
 		unEquip(I)
+
+		if(disabilities & PACIFISM && I.throwforce)
+			to_chat(src, "<span class='notice'>You set [I] down gently on the ground.</span>")
+			return
 
 	if(thrown_thing)
 		visible_message("<span class='danger'>[src] has thrown [thrown_thing].</span>")

@@ -536,3 +536,71 @@
 
 /mob/living/proc/CureTourettes()
 	disabilities &= ~TOURETTES
+
+
+//traits
+/mob/living/proc/add_trait(trait, source)
+	if(!status_traits[trait])
+		status_traits[trait] = list(source)
+	else
+		status_traits[trait] |= list(source)
+
+/mob/living/proc/add_trait_datum(trait) //separate proc due to the way these ones are handled
+	if(has_trait(trait))
+		return
+	if(!SStraits || !SStraits.traits[trait])
+		return
+	var/datum/trait/T = SStraits.traits[trait]
+	new T (src)
+	return TRUE
+
+/mob/living/proc/remove_trait(trait, list/sources, force)
+
+	if(!status_traits[trait])
+		return
+
+	if(locate(ROUNDSTART_TRAIT) in status_traits[trait] && !force) //mob traits applied through roundstart cannot normally be removed
+		return
+
+	if(!sources) // No defined source cures the trait entirely.
+		status_traits -= trait
+		return
+
+	if(!islist(sources))
+		sources = list(sources)
+
+	if(LAZYLEN(sources))
+		for(var/S in sources)
+			if(S in status_traits[trait])
+				status_traits[trait] -= S
+	else
+		status_traits[trait] = list()
+
+	if(!LAZYLEN(status_traits[trait]))
+		status_traits -= trait
+
+/mob/living/proc/remove_trait_datum(trait)
+	var/datum/trait/T = roundstart_traits[trait]
+	if(T)
+		qdel(T)
+		return TRUE
+
+/mob/living/proc/has_trait(trait, list/sources)
+	if(!status_traits[trait])
+		return FALSE
+
+	. = FALSE
+
+	if(LAZYLEN(sources))
+		for(var/S in sources)
+			if(S in status_traits[trait])
+				return TRUE
+	else
+		if(LAZYLEN(status_traits[trait]))
+			return TRUE
+
+/mob/living/proc/has_trait_datum(trait)
+	return roundstart_traits[trait]
+
+/mob/living/proc/remove_all_traits()
+	status_traits = list()

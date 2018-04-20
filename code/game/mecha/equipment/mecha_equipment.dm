@@ -15,6 +15,7 @@
 	reliability = 1000
 	var/salvageable = 1
 	var/selectable = 1	// Set to 0 for passive equipment such as mining scanner or armor plates
+	var/harmful = FALSE //Controls if equipment can be used to attack by a pacifist.
 
 
 /obj/item/mecha_parts/mecha_equipment/proc/update_chassis_page()

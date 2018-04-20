@@ -310,6 +310,11 @@
 	if(M.melee_damage_upper == 0)
 		M.custom_emote(1, "[M.friendly] [src]")
 	else
+
+		if(M.disabilities & PACIFISM)
+			to_chat(M, "<span class='notice'>You don't want to hurt anyone!</span>")
+			return FALSE
+
 		if(M.attack_sound)
 			playsound(loc, M.attack_sound, 50, 1, 1)
 		M.do_attack_animation(src)
@@ -318,7 +323,7 @@
 		add_logs(M, src, "attacked")
 		var/damage = rand(M.melee_damage_lower, M.melee_damage_upper)
 		if(check_shields(damage, "the [M.name]", null, MELEE_ATTACK, M.armour_penetration))
-			return 0
+			return FALSE
 		var/dam_zone = pick("head", "chest", "groin", "l_arm", "l_hand", "r_arm", "r_hand", "l_leg", "l_foot", "r_leg", "r_foot")
 		var/obj/item/organ/external/affecting = get_organ(ran_zone(dam_zone))
 		var/armor = run_armor_check(affecting, "melee", armour_penetration = M.armour_penetration)
@@ -337,6 +342,9 @@
 
 
 		else
+			if(L.disabilities & PACIFISM)
+				to_chat(L, "<span class='notice'>You don't want to hurt anyone!</span>")
+				return
 			L.do_attack_animation(src)
 			var/damage = rand(1, 3)
 			visible_message("<span class='danger'>[L] bites [src]!</span>", \
@@ -353,6 +361,11 @@
 	if(M.Victim) return // can't attack while eating!
 
 	if(stat != DEAD)
+
+		if(disabilities & PACIFISM)
+			to_chat(M, "<span class='notice'>You don't want to hurt anyone!</span>")
+			return FALSE
+
 		M.do_attack_animation(src)
 		visible_message("<span class='danger'>The [M.name] glomps [src]!</span>", \
 				"<span class='userdanger'>The [M.name] glomps [src]!</span>")
@@ -365,7 +378,7 @@
 			damage = rand(5, 25)
 
 		if(check_shields(damage, "the [M.name]", null, MELEE_ATTACK))
-			return 0
+			return FALSE
 
 		var/dam_zone = pick("head", "chest", "groin", "l_arm", "l_hand", "r_arm", "r_hand", "l_leg", "l_foot", "r_leg", "r_foot")
 
@@ -1886,6 +1899,8 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 	if(!check_has_mouth())
 		to_chat(src, "Where do you intend to put \the [toEat]? You don't have a mouth!")
 		return 0
+	if(has_trait(TRAIT_VORACIOUS))
+		M.changeNext_move(CLICK_CD_MELEE * 0.5) //nom nom nom
 	return ..()
 
 /mob/living/carbon/human/forceFed(var/obj/item/weapon/reagent_containers/food/toEat, mob/user, fullness)
@@ -1903,6 +1918,8 @@ Eyes need to have significantly high darksight to shine unless the mob has the X
 		else
 			to_chat(src, "<span class='notice'>You pour a bit of liquid from [toDrink] into your connection port.</span>")
 	else
+		if(has_trait(TRAIT_VORACIOUS))
+			changeNext_move(CLICK_CD_MELEE * 0.5) //chug! chug! chug!
 		to_chat(src, "<span class='notice'>You swallow a gulp of [toDrink].</span>")
 	return 1
 

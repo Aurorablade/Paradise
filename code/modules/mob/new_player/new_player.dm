@@ -313,9 +313,8 @@
 		AnnounceArrival(character, rank, join_message)
 		callHook("latespawn", list(character))
 
-	for(var/V in character.roundstart_traits)
-		var/datum/trait/T = V
-		T.on_spawn() //so latejoins still get their correct traits
+	if(config.roundstart_traits)
+		SStraits.AssignTraits(character, character.client, TRUE)
 
 	if(!thisjob.is_position_available() && thisjob in job_master.prioritized_jobs)
 		job_master.prioritized_jobs -= thisjob

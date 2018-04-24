@@ -173,7 +173,7 @@
 		radio.talk_into(M, text)
 
 
-/obj/mecha/proc/click_action(atom/target, mob/user, params)
+/obj/mecha/proc/click_action(atom/target, mob/living/user, params)
 	if(!occupant || occupant != user )
 		return
 	if(user.incapacitated())

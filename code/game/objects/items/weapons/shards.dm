@@ -74,7 +74,10 @@
 		if(M.incorporeal_move || M.flying || M.throwing)//you are incorporal or flying or being thrown ..no shard stepping!
 			return
 		to_chat(M, "<span class='danger'>You step on \the [src]!</span>")
-		playsound(loc, 'sound/effects/glass_step.ogg', 50, 1) // not sure how to handle metal shards with sounds
+		if(M.has_trait(TRAIT_LIGHT_STEP))
+			playsound(loc, 'sound/effects/glass_step.ogg', 30, 1)
+		else
+			playsound(loc, 'sound/effects/glass_step.ogg', 50, 1)
 		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
 

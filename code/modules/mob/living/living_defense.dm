@@ -239,7 +239,7 @@
 	if(!(status_flags & CANPUSH))
 		return FALSE
 
-	if(user.disabilities & PACIFISM)
+	if(user.has_trait(TRAIT_PACIFISM))
 		to_chat(user, "<span class='notice'>You don't want to risk hurting [src]!</span>")
 		return FALSE
 

@@ -29,7 +29,7 @@
 	if(flags & (NOBLUDGEON))
 		return 0
 
-	if(user.disabilities & PACIFISM)
+	if(user.has_trait(TRAIT_PACIFISM))
 		return
 
 	if(can_operate(M))  //Checks if mob is lying down on table for surgery

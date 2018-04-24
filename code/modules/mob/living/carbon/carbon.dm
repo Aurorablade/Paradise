@@ -583,7 +583,7 @@ var/list/ventcrawl_machinery = list(/obj/machinery/atmospherics/unary/vent_pump,
 		qdel(G)	//We delete the grab.
 		if(throwable_mob)
 			thrown_thing = throwable_mob
-			if(disabilities & PACIFISM)
+			if(has_trait(TRAIT_PACIFISM))
 				to_chat(src, "<span class='notice'>You gently let go of [throwable_mob].</span>")
 				return
 			var/turf/start_T = get_turf(loc) //Get the start and target tile for the descriptors
@@ -599,7 +599,7 @@ var/list/ventcrawl_machinery = list(/obj/machinery/atmospherics/unary/vent_pump,
 		thrown_thing = I
 		unEquip(I)
 
-		if(disabilities & PACIFISM && I.throwforce)
+		if(has_trait(TRAIT_PACIFISM) && I.throwforce)
 			to_chat(src, "<span class='notice'>You set [I] down gently on the ground.</span>")
 			return
 

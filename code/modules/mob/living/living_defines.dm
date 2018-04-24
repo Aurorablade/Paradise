@@ -66,7 +66,7 @@
 	var/blood_volume = 0 //how much blood the mob has
 	hud_possible = list(HEALTH_HUD,STATUS_HUD,SPECIALROLE_HUD)
 
-	var/list/staus_traits = list()
+	var/list/status_traits = list()
 
 	var/list/roundstart_traits = list()
 

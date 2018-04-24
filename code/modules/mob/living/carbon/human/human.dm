@@ -311,7 +311,7 @@
 		M.custom_emote(1, "[M.friendly] [src]")
 	else
 
-		if(M.disabilities & PACIFISM)
+		if(M.has_trait(TRAIT_PACIFISM))
 			to_chat(M, "<span class='notice'>You don't want to hurt anyone!</span>")
 			return FALSE
 
@@ -342,7 +342,7 @@
 
 
 		else
-			if(L.disabilities & PACIFISM)
+			if(L.has_trait(TRAIT_PACIFISM))
 				to_chat(L, "<span class='notice'>You don't want to hurt anyone!</span>")
 				return
 			L.do_attack_animation(src)
@@ -362,7 +362,7 @@
 
 	if(stat != DEAD)
 
-		if(disabilities & PACIFISM)
+		if(has_trait(TRAIT_PACIFISM))
 			to_chat(M, "<span class='notice'>You don't want to hurt anyone!</span>")
 			return FALSE
 

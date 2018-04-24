@@ -108,7 +108,7 @@
 
 		if(INTENT_HARM)
 
-			if(M.disabilities & PACIFISM)
+			if(M.has_trait(TRAIT_PACIFISM))
 				to_chat(M, "<span class='warning'>You don't want to harm [src]!</span>")
 				return
 			//Vampire code

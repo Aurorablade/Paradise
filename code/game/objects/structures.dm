@@ -83,10 +83,12 @@
 
 	var/obj/machinery/door/poddoor/shutters/S = locate() in T.contents
 	if(S && S.density) return
-
+	var/adjusted_climb_time = 50
 	usr.visible_message("<span class='warning'>[user] starts climbing onto \the [src]!</span>")
 	climber = user
-	if(!do_after(user, 50, target = src))
+	if(user.has_trait(TRAIT_FREERUNNING)) //do you have any idea how fast I am???
+		adjusted_climb_time *= 0.8
+	if(!do_after(user, adjusted_climb_time, target = src))
 		climber = null
 		return
 

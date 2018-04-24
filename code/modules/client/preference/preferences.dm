@@ -1157,6 +1157,7 @@ var/global/list/special_role_times = list( //minimum age (in days) for accounts 
 			if("update")
 				var/trait = href_list["trait"]
 				if(!SStraits.traits[trait])
+					return
 				var/value = SStraits.trait_points[trait]
 				if(value == 0)
 					if(trait in neutral_traits)

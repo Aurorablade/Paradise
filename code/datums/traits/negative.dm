@@ -14,6 +14,39 @@
 		qdel(src)
 
 
+/datum/trait/family_heirloom
+	name = "Family Heirloom"
+	desc = "You are the current owner of an heirloom. passed down for generations. You have to keep it safe!"
+	value = -1
+	//mood_trait = TRUE //Fethas:I know commented code but leave it here for when/if we add mood stuff
+	var/obj/item/heirloom
+	var/where_text
+
+/datum/trait/family_heirloom/on_spawn()
+	var/mob/living/carbon/human/H = trait_holder
+	var/obj/item/heirloom_type
+	var/list/heirlooms = subtypesof(/obj/item)
+	for(var/V in heirlooms)
+		var/obj/item/I = V
+		if((!initial(I.icon_state)) || (!initial(I.item_state)) || (initial(I.flags) & ABSTRACT))
+			heirlooms -= V
+		heirloom_type = pick(heirlooms)
+	heirloom = new heirloom_type(get_turf(trait_holder))
+	var/list/slots = list(
+		"in your backpack" = slot_in_backpack,
+		"in your left pocket" = slot_l_store,
+		"in your right pocket" = slot_r_store
+	)
+	var/where = H.equip_in_one_of_slots(heirloom, slots)
+	if(!where)
+		where = "at your feet"
+	where_text = "<span class='boldnotice'>There is a precious family [heirloom.name] [where], passed down from generation to generation. Keep it safe!</span>"
+
+/datum/trait/family_heirloom/post_add()
+	to_chat(trait_holder, where_text)
+	var/list/family_name = splittext(trait_holder.real_name, " ")
+	heirloom.name = "\improper [family_name[family_name.len]] family [heirloom.name]"
+
 
 /datum/trait/poor_aim
 	name = "Poor Aim"
@@ -63,7 +96,7 @@
 
 
 
-/datum/trait/social_anxiety
+datum/trait/social_anxiety
 	name = "Social Anxiety"
 	desc = "Talking to people is very difficult for you, and you often stutter or even lock up."
 	value = -1
@@ -73,12 +106,16 @@
 	var/dumb_thing = TRUE
 
 /datum/trait/social_anxiety/on_process()
+	var/nearby_people = 0
+	for(var/mob/living/carbon/human/H in view(5, trait_holder))
+		if(H.client)
+			nearby_people++
 	var/mob/living/carbon/human/H = trait_holder
-	if(prob(5))
+	if(prob(2 + nearby_people))
 		H.stuttering = max(3, H.stuttering)
-	else if(prob(1) && !H.silent)
+	else if(prob(min(3, nearby_people)) && !H.silent)
 		to_chat(H, "<span class='danger'>You retreat into yourself. You <i>really</i> don't feel up to talking.</span>")
 		H.silent = max(10, H.silent)
 	else if(prob(0.5) && dumb_thing)
-		to_chat(H, "<span class='danger'>You think of a dumb thing you said a long time ago and scream internally.</span>")
+		to_chat(H, "<span class='userdanger'>You think of a dumb thing you said a long time ago and scream internally.</span>")
 		dumb_thing = FALSE //only once per life

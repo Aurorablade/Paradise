@@ -325,6 +325,8 @@ GLOBAL_LIST_INIT(rcd_door_types, list(
 		return FALSE
 
 	if(isfloorturf(A))
+		if(islava(A) || ischasm(A))
+			return FALSE
 		if(checkResource(5, user))
 			to_chat(user, "Deconstructing Floor...")
 			playsound(loc, 'sound/machines/click.ogg', 50, 1)

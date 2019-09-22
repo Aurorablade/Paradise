@@ -136,7 +136,7 @@
 		output += A.antag_memory
 
 	if(objectives.len)
-		output += "<HR><B>Objectives:</B>"
+		output += "<HR><B>Objectives:</B><BR>"
 		output += gen_objective_text()
 
 	if(job_objectives.len)

@@ -132,8 +132,11 @@
 	var/output = "<B>[current.real_name]'s Memories:</B><HR>"
 	output += memory
 
+	for(var/datum/antagonist/A in antag_datums)
+		output += A.antag_memory
+
 	if(objectives.len)
-		output += "<HR><B>Objectives:</B><BR>"
+		output += "<HR><B>Objectives:</B>"
 		output += gen_objective_text()
 
 	if(job_objectives.len)
@@ -152,8 +155,16 @@
 /datum/mind/proc/gen_objective_text(admin = FALSE)
 	. = ""
 	var/obj_count = 1
+	var/list/all_objectives = list()
+	for(var/datum/antagonist/A in antag_datums)
+		all_objectives |= A.objectives
+
+	if(all_objectives.len)
+		for(var/datum/objective/objective in all_objectives)
+			. += "<br><B>Objective #[obj_count++]</B>: [objective.explanation_text]"
+
 	for(var/datum/objective/objective in objectives)
-		. += "<b>Objective #[obj_count]</b>: [objective.explanation_text]"
+		. += "<b>Objective #[obj_count++]</b>: [objective.explanation_text]"
 		if(admin)
 			. += " <a href='?src=[UID()];obj_edit=\ref[objective]'>Edit</a> " // Edit
 			. += "<a href='?src=[UID()];obj_delete=\ref[objective]'>Delete</a> " // Delete
@@ -162,7 +173,6 @@
 			. += "<font color=[objective.completed ? "green" : "red"]>Toggle Completion</font>"
 			. += "</a>"
 		. += "<br>"
-		obj_count++
 
 /datum/mind/proc/_memory_edit_header(gamemode, list/alt)
 	. = gamemode

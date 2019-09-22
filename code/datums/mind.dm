@@ -132,10 +132,13 @@
 	var/output = "<B>[current.real_name]'s Memories:</B><HR>"
 	output += memory
 
+	var/antag_datum_objectives = FALSE
 	for(var/datum/antagonist/A in antag_datums)
 		output += A.antag_memory
+		if(LAZYLEN(A.objectives))
+			antag_datum_objectives = TRUE
 
-	if(objectives.len)
+	if(LAZYLEN(objectives) || antag_datum_objectives)
 		output += "<HR><B>Objectives:</B><BR>"
 		output += gen_objective_text()
 
@@ -155,11 +158,12 @@
 /datum/mind/proc/gen_objective_text(admin = FALSE)
 	. = ""
 	var/obj_count = 1
+
 	var/list/all_objectives = list()
 	for(var/datum/antagonist/A in antag_datums)
 		all_objectives |= A.objectives
 
-	if(all_objectives.len)
+	if(LAZYLEN(all_objectives))
 		for(var/datum/objective/objective in all_objectives)
 			. += "<br><B>Objective #[obj_count++]</B>: [objective.explanation_text]"
 
